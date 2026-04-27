@@ -112,7 +112,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto relative">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-purple-800/50 bg-purple-900/20 text-purple-300 text-sm mb-8">
             <span className="w-2 h-2 bg-green-400 rounded-full" />
-            100% on-chain — Zero scam — Open source
+            info@solmint.space
           </div>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             Crea il tuo
