@@ -35,7 +35,7 @@ const plans = [
   },
   {
     name: "Standard",
-    price: "0.1",
+    price: "0.2",
     sub: "SOL + fee di rete",
     features: ["Tutto di Starter", "1 revoke a scelta", "Priorita di elaborazione"],
     featured: true,
