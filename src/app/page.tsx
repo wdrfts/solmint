@@ -112,7 +112,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto relative">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-purple-800/50 bg-purple-900/20 text-purple-300 text-sm mb-8">
             <span className="w-2 h-2 bg-green-400 rounded-full" />
-            info@solmint.space
+            100% non-custodial
           </div>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             Crea il tuo
@@ -242,7 +242,7 @@ export default function Home() {
     <div className="flex items-center gap-6">
       <a href="/privacy" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Privacy Policy</a>
       <a href="/terms" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Termini e Condizioni</a>
-      <span className="text-xs text-gray-600">100% non-custodial</span>
+      <span className="text-xs text-gray-600"><a href="mailto:info@solmint.space">info@solmint.space</a></span>
     </div>
   </div>
 </footer>
