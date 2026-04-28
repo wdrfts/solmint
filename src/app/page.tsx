@@ -68,7 +68,7 @@ export default function Home() {
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => setShowApp(false)}>
               <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}>S</div>
               <span className="font-medium text-white">SolMint</span>
-              <span className="text-xs px-2 py-0.5 bg-green-900/40 text-green-400 border border-green-800 rounded-full">Devnet</span>
+              <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-400 border border-purple-800 rounded-full">Mainnet</span>
             </div>
             <WalletMultiButton style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", borderRadius: "12px", fontSize: "13px", padding: "8px 16px", height: "auto" }} />
           </div>
