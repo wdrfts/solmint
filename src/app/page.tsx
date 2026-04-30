@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import TokenForm from "@/components/TokenForm";
 import LiquidityPool from "@/components/LiquidityPool";
 
@@ -10,176 +10,320 @@ const WalletMultiButton = dynamic(
   { ssr: false }
 );
 
-const features = [
-  { icon: "◎", title: "Token SPL reali", desc: "Token creati direttamente on-chain con metadata IPFS. Appaiono su Dexscreener, Axiom, Jupiter e tutti i DEX principali." },
-  { icon: "🔒", title: "Revoke authorities", desc: "Revoca Mint, Freeze e Update authority per rendere il tuo token completamente decentralizzato e trustless." },
-  { icon: "💧", title: "Liquidity Pool", desc: "Crea pool su Raydium CPMM con fee tier personalizzabili. Aggiungi e rimuovi liquidita direttamente dal sito." },
-  { icon: "🖼", title: "Metadata su IPFS", desc: "Logo, nome, simbolo, website, Twitter e Telegram salvati permanentemente su IPFS tramite Pinata." },
-  { icon: "⚡", title: "Un click tutto fatto", desc: "Connetti Phantom, compila il form, firma la transazione. Il tuo token e live in meno di 60 secondi." },
-  { icon: "🛡", title: "100% legit", desc: "Nessun wallet privato custodito, nessun database, nessuna truffa. Tutto open source e verificabile." },
+// Real SVG logos for partners
+const PartnerLogos: Record<string, ReactNode> = {
+  Solana: (
+    <svg width="20" height="16" viewBox="0 0 397 311" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7zM64.6 3.8C67.1 1.4 70.4 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8zM333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z" fill="url(#solGrad)"/>
+      <defs>
+        <linearGradient id="solGrad" x1="0" y1="0" x2="397" y2="311" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#9945FF"/>
+          <stop offset="1" stopColor="#14F195"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  ),
+  Metaplex: (
+    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+      <rect width="100" height="100" rx="20" fill="#6B46C1"/>
+      <text x="50" y="67" textAnchor="middle" fill="white" fontSize="52" fontWeight="900" fontFamily="system-ui">M</text>
+    </svg>
+  ),
+  Raydium: (
+    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="50" fill="#1B1F3B"/>
+      <path d="M30 35h25c8 0 14 6 14 14s-6 14-14 14H42l18 16H44L26 63h19c4 0 6-3 6-6s-2-6-6-6H30V35z" fill="#5BC4F5"/>
+    </svg>
+  ),
+  Pinata: (
+    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="50" fill="#6C10A1"/>
+      <text x="50" y="67" textAnchor="middle" fill="white" fontSize="42" fontWeight="900" fontFamily="system-ui">P</text>
+    </svg>
+  ),
+  Phantom: (
+    <svg width="20" height="20" viewBox="0 0 128 128" fill="none">
+      <rect width="128" height="128" rx="28" fill="#AB9FF2"/>
+      <path d="M110.5 64c0 25.4-20.6 46-46 46-25.4 0-46-20.6-46-46s20.6-46 46-46 46 20.6 46 46z" fill="#4B44AF"/>
+      <path d="M89 50c0 11-8.9 20-20 20s-20-9-20-20 8.9-20 20-20 20 9 20 20z" fill="white"/>
+      <circle cx="64" cy="78" r="10" fill="white"/>
+    </svg>
+  ),
+  Dexscreener: (
+    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+      <rect width="100" height="100" rx="18" fill="#0A0A0A"/>
+      <path d="M15 75L35 45l15 20 15-30 20 40" stroke="#00D4AA" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <circle cx="75" cy="55" r="6" fill="#00D4AA"/>
+    </svg>
+  ),
+  Axiom: (
+    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+      <rect width="100" height="100" rx="18" fill="#111"/>
+      <path d="M20 80L50 20l30 60H20z" stroke="white" strokeWidth="5" fill="none" strokeLinejoin="round"/>
+      <line x1="30" y1="65" x2="70" y2="65" stroke="white" strokeWidth="5" strokeLinecap="round"/>
+    </svg>
+  ),
+  Photon: (
+    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="50" fill="#1a1a2e"/>
+      <circle cx="50" cy="50" r="22" fill="none" stroke="#FFD700" strokeWidth="5"/>
+      <line x1="50" y1="10" x2="50" y2="25" stroke="#FFD700" strokeWidth="4" strokeLinecap="round"/>
+      <line x1="50" y1="75" x2="50" y2="90" stroke="#FFD700" strokeWidth="4" strokeLinecap="round"/>
+      <line x1="10" y1="50" x2="25" y2="50" stroke="#FFD700" strokeWidth="4" strokeLinecap="round"/>
+      <line x1="75" y1="50" x2="90" y2="50" stroke="#FFD700" strokeWidth="4" strokeLinecap="round"/>
+    </svg>
+  ),
+};
+
+const PARTNERS = ["Solana", "Metaplex", "Raydium", "Pinata", "Phantom", "Dexscreener", "Axiom", "Photon"];
+
+const FEATURES = [
+  { num: "01", icon: "◎", title: "Token SPL nativi", desc: "Token creati direttamente on-chain. Nessun intermediario, nessun database. Solo tu e la blockchain.", tag: "On-chain", color: "#9945FF" },
+  { num: "02", icon: "📁", title: "Metadata permanenti", desc: "Logo, nome, simbolo e link salvati su IPFS tramite Pinata. Immutabili, decentralizzati, permanenti.", tag: "IPFS", color: "#14F195" },
+  { num: "03", icon: "🔒", title: "Revoke authorities", desc: "Rendi il tuo token trustless revocando Mint, Freeze e Update authority in un solo click.", tag: "Sicurezza", color: "#9945FF" },
+  { num: "04", icon: "📈", title: "Listing automatico", desc: "Dopo aver aggiunto liquidità su Raydium, il token appare su Dexscreener, Photon e Axiom.", tag: "DEX", color: "#14F195" },
+  { num: "05", icon: "💧", title: "Liquidity Pool", desc: "Crea e gestisci pool su Raydium CPMM con fee tier personalizzabili. Rimuovi liquidità quando vuoi.", tag: "Raydium", color: "#9945FF" },
+  { num: "06", icon: "🛡", title: "100% non-custodial", desc: "Non custodiamo mai i tuoi fondi. Nessuna chiave privata, nessun rischio controparte. Mai.", tag: "Safe", color: "#14F195" },
 ];
 
-const steps = [
-  { step: "01", title: "Connetti Phantom", desc: "Collega il tuo wallet Phantom o Solflare. Nessuna registrazione, nessun email." },
-  { step: "02", title: "Configura il token", desc: "Inserisci nome, simbolo, supply, decimali, carica il logo e aggiungi i link social. Scegli quali authority revocare." },
-  { step: "03", title: "Firma e lancia", desc: "Paga la piccola fee in SOL, firma la transazione con Phantom. Il token appare subito su Solscan e tutti i DEX." },
+const STEPS = [
+  { n: "1", title: "Connetti il wallet", desc: "Apri Phantom o Solflare. Un click e sei dentro. Nessun account, nessuna email, nessuna verifica.", tag: "Phantom · Solflare", color: "#9945FF" },
+  { n: "2", title: "Configura il token", desc: "Nome, simbolo, supply, decimali, logo, link social. Scegli se revocare le authority per renderlo trustless.", tag: "Meno di 60 secondi", color: "#14F195" },
+  { n: "3", title: "Firma e ricevi il token", desc: "Conferma la transazione con Phantom. Il token è subito on-chain e appare nel tuo wallet.", tag: "Immediato", color: "#9945FF" },
+  { n: "4", title: "Aggiungi liquidità e vai live", desc: "Crea una pool su Raydium. Appena aggiunta la liquidità il token è visibile e tradabile su tutti i DEX.", tag: "Dexscreener · Axiom · Photon", color: "#14F195" },
 ];
 
-const plans = [
-  {
-    name: "Starter",
-    price: "0.1",
-    sub: "solo fee di rete",
-    features: ["Token SPL base", "Metadata su IPFS", "Logo e link social"],
-    featured: false,
-  },
-  {
-    name: "Standard",
-    price: "0.2",
-    sub: "SOL + fee di rete",
-    features: ["Tutto di Starter", "1 revoke a scelta", "Priorita di elaborazione"],
-    featured: true,
-  },
-  {
-    name: "Pro",
-    price: "0.4",
-    sub: "SOL + fee di rete",
-    features: ["Tutto di Starter", "Tutte e 3 le revoke incluse", "Supporto prioritario"],
-    featured: false,
-  },
+const FAQS = [
+  { q: "SolMint è sicuro?", a: "Sì. SolMint non ha mai accesso alle tue chiavi private. Tutto avviene tramite il tuo wallet Phantom. Il codice è open source e verificabile." },
+  { q: "Il mio token apparirà su Dexscreener?", a: "Sì, automaticamente. Non appena crei una liquidity pool su Raydium, il tuo token viene listato su Dexscreener, Photon, Axiom e tutti i principali aggregatori." },
+  { q: "Cosa significa revocare le authority?", a: "Revocare la Mint Authority significa che nessuno può più creare nuovi token — la supply è fissa. Revocare la Freeze Authority significa che nessuno può congelare i wallet degli holder. Revocare la Update Authority rende i metadata immutabili." },
+  { q: "Quanto costa creare un token?", a: "Il piano Starter costa 0.1 SOL + fee di rete. Il piano Standard costa 0.2 SOL e include 1 revoke a scelta. Il piano Pro costa 0.4 SOL con tutte e 3 le revoke incluse." },
+  { q: "Posso rimuovere la liquidità dopo?", a: "Sì. Puoi rimuovere tutta o parte della liquidità in qualsiasi momento dalla sezione Liquidity Pool. I SOL e i token tornano immediatamente nel tuo wallet." },
+  { q: "Hai bisogno di aiuto?", a: "Scrivici a info@solmint.space — rispondiamo entro 24 ore." },
 ];
 
-const stats = [
-  { value: "0.1 SOL", label: "Piano base" },
-  { value: "60s", label: "Tempo medio" },
-  { value: "100%", label: "On-chain" },
-  { value: "3", label: "Click per lanciare" },
-];
+function FAQItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-b cursor-pointer group" style={{ borderColor: "rgba(255,255,255,0.08)" }} onClick={() => setOpen(!open)}>
+      <div className="flex items-center justify-between py-6 gap-4">
+        <span className="text-white font-semibold text-base">{q}</span>
+        <span className="text-xl flex-shrink-0 transition-all duration-200" style={{ color: open ? "#9945FF" : "rgba(255,255,255,0.3)", transform: open ? "rotate(45deg)" : "rotate(0deg)" }}>+</span>
+      </div>
+      {open && <p className="text-sm leading-relaxed pb-6" style={{ color: "rgba(255,255,255,0.5)" }}>{a}</p>}
+    </div>
+  );
+}
+
+function Logo({ size = 32 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="9" fill="url(#mainLg)" />
+      <circle cx="16" cy="16" r="6" stroke="white" strokeWidth="2" fill="none" />
+      <path d="M16 10V8M16 24v-2M10 16H8M24 16h-2" stroke="white" strokeWidth="2" strokeLinecap="round" />
+      <defs>
+        <linearGradient id="mainLg" x1="0" y1="0" x2="32" y2="32">
+          <stop stopColor="#9945FF" /><stop offset="1" stopColor="#14F195" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
 
 export default function Home() {
   const [tab, setTab] = useState("create");
   const [showApp, setShowApp] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  useEffect(() => {
+    if (showApp) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ps = Array.from({ length: 80 }, () => ({
+      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
+      r: Math.random() * 1.2 + 0.3, o: Math.random() * 0.3 + 0.05,
+    }));
+    let id: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ps.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(153,69,255,${p.o})`; ctx.fill();
+      });
+      id = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => cancelAnimationFrame(id);
+  }, [showApp]);
 
   if (showApp) {
     return (
-      <main className="min-h-screen bg-gray-950">
-        <header className="border-b border-gray-800 px-6 py-4">
+      <main className="min-h-screen" style={{ background: "#07070f" }}>
+        <header className="border-b px-6 py-4 sticky top-0 z-50" style={{ borderColor: "rgba(255,255,255,0.07)", background: "rgba(7,7,15,0.98)", backdropFilter: "blur(20px)" }}>
           <div className="max-w-2xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setShowApp(false)}>
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}>S</div>
-              <span className="font-medium text-white">SolMint</span>
-              <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-400 border border-purple-800 rounded-full">Mainnet</span>
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setShowApp(false)}>
+              <Logo size={30} />
+              <span className="font-black text-white tracking-tight">SolMint</span>
+              <span className="text-xs px-2.5 py-1 rounded-full font-semibold" style={{ background: "rgba(20,241,149,0.1)", color: "#14F195", border: "1px solid rgba(20,241,149,0.25)" }}>Mainnet</span>
             </div>
-            <WalletMultiButton style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", borderRadius: "12px", fontSize: "13px", padding: "8px 16px", height: "auto" }} />
+            <WalletMultiButton style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", borderRadius: "10px", fontSize: "13px", padding: "8px 16px", height: "auto", fontFamily: "inherit" }} />
           </div>
         </header>
         <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
-          <div className="flex gap-2 bg-gray-900 p-1 rounded-xl mb-6">
-            <button onClick={() => setTab("create")} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${tab === "create" ? "bg-gray-700 text-white" : "text-gray-400"}`}>Crea Token</button>
-            <button onClick={() => setTab("pool")} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${tab === "pool" ? "bg-gray-700 text-white" : "text-gray-400"}`}>Liquidity Pool</button>
+          <div className="flex gap-1 p-1 rounded-xl mb-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            <button onClick={() => setTab("create")} className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all" style={tab === "create" ? { background: "linear-gradient(135deg, #9945FF, #14F195)", color: "white" } : { color: "rgba(255,255,255,0.4)" }}>Crea Token</button>
+            <button onClick={() => setTab("pool")} className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all" style={tab === "pool" ? { background: "linear-gradient(135deg, #9945FF, #14F195)", color: "white" } : { color: "rgba(255,255,255,0.4)" }}>Liquidity Pool</button>
           </div>
         </div>
         {tab === "create" ? <TokenForm /> : <LiquidityPool />}
-        <footer className="text-center py-8 text-xs text-gray-600">SolMint — Powered by Solana and Metaplex</footer>
+        <footer className="text-center py-10 text-xs" style={{ color: "rgba(255,255,255,0.12)" }}>SolMint — Non-custodial Token Launcher su Solana</footer>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white overflow-x-hidden">
+    <main className="min-h-screen overflow-x-hidden" style={{ background: "#07070f", color: "white" }}>
+      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }} />
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+        <div className="absolute rounded-full" style={{ width: 800, height: 800, top: -300, left: "50%", transform: "translateX(-50%)", background: "radial-gradient(circle, rgba(153,69,255,0.1) 0%, transparent 70%)", filter: "blur(60px)" }} />
+        <div className="absolute rounded-full" style={{ width: 500, height: 500, bottom: "15%", right: "-150px", background: "radial-gradient(circle, rgba(20,241,149,0.06) 0%, transparent 70%)", filter: "blur(80px)" }} />
+      </div>
 
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-800/50 backdrop-blur-md bg-gray-950/80 px-6 py-4">
+      {/* Nav */}
+      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300" style={{ background: scrolled ? "rgba(7,7,15,0.96)" : "transparent", backdropFilter: scrolled ? "blur(24px)" : "none", borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}>S</div>
-            <span className="font-semibold text-white text-lg">SolMint</span>
+            <Logo size={32} />
+            <span className="font-black text-xl tracking-tight">SolMint</span>
           </div>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm text-gray-400 hover:text-white transition-colors">Features</a>
-            <a href="#how" className="text-sm text-gray-400 hover:text-white transition-colors">Come funziona</a>
-            <a href="#pricing" className="text-sm text-gray-400 hover:text-white transition-colors">Prezzi</a>
+          <div className="hidden md:flex items-center gap-10">
+            {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"]].map(([label, href]) => (
+              <a key={label} href={href} className="text-sm font-medium transition-colors" style={{ color: "rgba(255,255,255,0.45)" }} onMouseEnter={e => (e.currentTarget.style.color = "white")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.45)")}>{label}</a>
+            ))}
           </div>
-          <button onClick={() => setShowApp(true)} className="px-5 py-2 rounded-xl text-sm font-medium text-white transition-all hover:opacity-90" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}>
+          <button onClick={() => setShowApp(true)} className="px-5 py-2.5 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 hover:scale-105" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}>
             Lancia App
           </button>
         </div>
       </nav>
 
-      <section className="pt-32 pb-20 px-6 text-center relative">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-10" style={{ background: "radial-gradient(circle, #9945FF, transparent)" }} />
-        </div>
-        <div className="max-w-4xl mx-auto relative">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-purple-800/50 bg-purple-900/20 text-purple-300 text-sm mb-8">
-            <span className="w-2 h-2 bg-green-400 rounded-full" />
-            100% non-custodial
+      {/* Hero */}
+      <section className="relative pt-44 pb-28 px-6 text-center" style={{ zIndex: 1 }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-12" style={{ background: "rgba(153,69,255,0.1)", border: "1px solid rgba(153,69,255,0.2)", color: "rgba(255,255,255,0.65)" }}>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#14F195", boxShadow: "0 0 8px #14F195" }} />
+            Trustless · Non-custodial · Open source
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Crea il tuo
-            <span className="block" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              Token Solana
-            </span>
-            in 60 secondi
+          <h1 className="font-black mb-8 leading-none" style={{ fontSize: "clamp(44px, 9vw, 100px)", letterSpacing: "-0.04em" }}>
+            <span style={{ color: "rgba(255,255,255,0.95)" }}>Il modo più semplice</span>
+            <br />
+            <span style={{ background: "linear-gradient(90deg, #9945FF 0%, #14F195 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>per lanciare</span>
+            <br />
+            <span style={{ color: "rgba(255,255,255,0.95)" }}>su Solana.</span>
           </h1>
-          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Nessun codice. Nessun intermediario. Crea, lancia e gestisci il tuo token SPL direttamente on-chain con Phantom.
+          <p className="text-lg md:text-xl mb-12 mx-auto leading-relaxed" style={{ color: "rgba(255,255,255,0.4)", maxWidth: 520 }}>
+            Crea token SPL professionali in 60 secondi. Nessun codice. Nessun intermediario. Solo tu, Phantom e la blockchain.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={() => setShowApp(true)} className="px-8 py-4 rounded-2xl text-base font-semibold text-white transition-all hover:scale-105 hover:opacity-90" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}>
-              Inizia ora
+            <button onClick={() => setShowApp(true)} className="px-10 py-4 rounded-2xl text-base font-black text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", boxShadow: "0 0 50px rgba(153,69,255,0.35)" }}>
+              Crea il tuo token
             </button>
-            <a href="#how" className="px-8 py-4 rounded-2xl text-base font-medium text-gray-300 border border-gray-700 hover:border-gray-500 transition-all">
+            <a href="#come-funziona" className="px-10 py-4 rounded-2xl text-base font-semibold transition-all hover:scale-105" style={{ color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)" }}>
               Come funziona
             </a>
           </div>
-          <p className="text-xs text-gray-600 mt-6">Connetti Phantom e sei pronto. Nessuna registrazione richiesta.</p>
+          <p className="text-xs mt-6" style={{ color: "rgba(255,255,255,0.18)" }}>Nessuna registrazione. Connetti Phantom e inizia.</p>
         </div>
       </section>
 
-      <section className="py-12 px-6 border-y border-gray-800/50">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {stats.map(s => (
-            <div key={s.label}>
-              <div className="text-3xl font-bold mb-1" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{s.value}</div>
-              <div className="text-sm text-gray-500">{s.label}</div>
+      {/* Stats — solo 2 */}
+      <section className="relative px-6 py-8" style={{ zIndex: 1 }}>
+        <div className="max-w-2xl mx-auto grid grid-cols-2 gap-px rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+          {[
+            { val: "60s", label: "Per creare un token" },
+            { val: "100%", label: "On-chain e non-custodial" },
+          ].map(s => (
+            <div key={s.label} className="text-center py-10 px-4" style={{ background: "#07070f" }}>
+              <div className="text-4xl font-black mb-2" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{s.val}</div>
+              <div className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>{s.label}</div>
             </div>
           ))}
         </div>
       </section>
 
-      <section id="features" className="py-24 px-6">
+      {/* Partners con loghi reali */}
+      <section className="relative px-6 py-24" style={{ zIndex: 1 }}>
+        <div className="max-w-5xl mx-auto">
+          <p className="text-center text-xs font-black mb-12 tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.18)" }}>Costruito su</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            {PARTNERS.map(name => (
+              <div key={name} className="flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all hover:scale-105 hover:border-purple-500" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                {PartnerLogos[name]}
+                <span className="text-sm font-bold" style={{ color: "rgba(255,255,255,0.8)" }}>{name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="relative px-6 py-28" style={{ zIndex: 1 }}>
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Tutto quello che ti serve</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">Una piattaforma completa per creare e gestire token Solana professionali.</p>
+          <div className="mb-20 max-w-xl">
+            <p className="text-xs font-black tracking-widest uppercase mb-5" style={{ color: "#9945FF" }}>Features</p>
+            <h2 className="font-black leading-tight mb-5" style={{ fontSize: "clamp(36px, 5vw, 56px)", letterSpacing: "-0.03em" }}>Tutto quello<br />che ti serve.</h2>
+            <p style={{ color: "rgba(255,255,255,0.38)", lineHeight: 1.7 }}>Una piattaforma completa per creare token professionali su Solana. Nessun compromesso.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {features.map(f => (
-              <div key={f.title} className="bg-gray-900 border border-gray-800 rounded-2xl p-6 hover:border-gray-600 transition-colors">
-                <div className="text-2xl mb-4">{f.icon}</div>
-                <h3 className="font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map(f => (
+              <div key={f.num} className="p-8 rounded-3xl transition-all hover:scale-105 hover:border-purple-500" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-2xl">{f.icon}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black" style={{ color: "rgba(255,255,255,0.1)" }}>{f.num}</span>
+                    <span className="text-xs px-2.5 py-1 rounded-full font-semibold" style={{ background: `rgba(${f.color === "#9945FF" ? "153,69,255" : "20,241,149"},0.1)`, color: f.color, border: `1px solid rgba(${f.color === "#9945FF" ? "153,69,255" : "20,241,149"},0.2)` }}>{f.tag}</span>
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold mb-3">{f.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="how" className="py-24 px-6 bg-gray-900/30">
+      {/* How it works */}
+      <section id="come-funziona" className="relative px-6 py-28" style={{ zIndex: 1, background: "rgba(255,255,255,0.015)" }}>
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Come funziona</h2>
-            <p className="text-gray-400">Tre step e il tuo token e live su Solana.</p>
+          <div className="text-center mb-20">
+            <p className="text-xs font-black tracking-widest uppercase mb-5" style={{ color: "#14F195" }}>Come funziona</p>
+            <h2 className="font-black leading-tight" style={{ fontSize: "clamp(36px, 5vw, 56px)", letterSpacing: "-0.03em" }}>Quattro step.<br />Token live.</h2>
           </div>
-          <div className="space-y-6">
-            {steps.map(s => (
-              <div key={s.step} className="flex gap-6 items-start">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-sm flex-shrink-0" style={{ background: "linear-gradient(135deg, #9945FF20, #14F19520)", border: "1px solid #9945FF40", color: "#9945FF" }}>
-                  {s.step}
-                </div>
-                <div className="flex-1 pt-2">
-                  <h3 className="font-semibold text-white mb-1">{s.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
+          <div className="space-y-5">
+            {STEPS.map((s, i) => (
+              <div key={s.n} className="flex gap-6 md:gap-10 items-start p-8 rounded-3xl transition-all hover:scale-101" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl flex-shrink-0" style={{ background: `linear-gradient(135deg, ${i % 2 === 0 ? "#9945FF, #7b35d0" : "#0fa872, #14F195"})`, boxShadow: `0 0 30px rgba(${i % 2 === 0 ? "153,69,255" : "20,241,149"},0.25)` }}>{s.n}</div>
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <h3 className="text-xl font-bold">{s.title}</h3>
+                    <span className="text-xs px-3 py-1 rounded-full font-semibold" style={{ background: `rgba(${i % 2 === 0 ? "153,69,255" : "20,241,149"},0.1)`, color: s.color, border: `1px solid rgba(${i % 2 === 0 ? "153,69,255" : "20,241,149"},0.2)` }}>{s.tag}</span>
+                  </div>
+                  <p style={{ color: "rgba(255,255,255,0.42)", lineHeight: 1.7 }}>{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -187,34 +331,40 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pricing" className="py-24 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Prezzi trasparenti</h2>
-            <p className="text-gray-400">Paghi solo quello che usi. Nessun abbonamento.</p>
+      {/* Pricing */}
+      <section id="prezzi" className="relative px-6 py-28" style={{ zIndex: 1 }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-20">
+            <p className="text-xs font-black tracking-widest uppercase mb-5" style={{ color: "#9945FF" }}>Prezzi</p>
+            <h2 className="font-black leading-tight mb-5" style={{ fontSize: "clamp(36px, 5vw, 56px)", letterSpacing: "-0.03em" }}>Trasparenti.<br />Definitivi.</h2>
+            <p style={{ color: "rgba(255,255,255,0.35)" }}>Paghi una volta. Nessun abbonamento. Nessuna sorpresa.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {plans.map(p => (
-              <div key={p.name} className={`rounded-2xl p-6 ${p.featured ? "border-2 border-purple-500 bg-purple-900/10" : "border border-gray-800 bg-gray-900"}`}>
-                {p.featured && <div className="text-xs text-purple-400 font-medium mb-3">Piu scelto</div>}
-                <div className="text-lg font-semibold mb-1">{p.name}</div>
-                <div className="text-3xl font-bold mb-1" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{p.price} SOL</div>
-                <div className="text-xs text-gray-500 mb-6">{p.sub}</div>
-                <div className="space-y-3">
+            {[
+              { name: "Starter", price: "0.1", badge: null, highlight: false, features: ["Token SPL on-chain", "Metadata su IPFS", "Logo + link social", "Visibile su tutti i DEX*"], note: "* dopo aggiunta liquidità" },
+              { name: "Standard", price: "0.2", badge: "Più scelto", highlight: true, features: ["Tutto di Starter", "1 revoke a scelta", "Mint / Freeze / Update", "Priorità di elaborazione"], note: null },
+              { name: "Pro", price: "0.4", badge: null, highlight: false, features: ["Tutto di Standard", "Tutte e 3 le revoke", "Token 100% trustless", "Supporto prioritario"], note: null },
+            ].map(p => (
+              <div key={p.name} className="rounded-3xl p-8 relative overflow-hidden transition-all hover:scale-105" style={p.highlight ? { background: "linear-gradient(135deg, rgba(153,69,255,0.12), rgba(20,241,149,0.06))", border: "1.5px solid rgba(153,69,255,0.35)", boxShadow: "0 0 60px rgba(153,69,255,0.12)" } : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                {p.badge && <div className="absolute top-0 right-0 text-xs font-black px-4 py-2 rounded-bl-2xl rounded-tr-3xl" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", color: "white" }}>{p.badge}</div>}
+                <p className="text-sm font-semibold mb-6" style={{ color: "rgba(255,255,255,0.35)" }}>{p.name}</p>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="font-black" style={{ fontSize: 52, background: p.highlight ? "linear-gradient(135deg, #9945FF, #14F195)" : "white", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{p.price}</span>
+                  <span className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.4)" }}>SOL</span>
+                </div>
+                <p className="text-xs mb-8" style={{ color: "rgba(255,255,255,0.2)" }}>+ fee di rete (~0.01 SOL)</p>
+                <div className="space-y-3 mb-8">
                   {p.features.map(f => (
-                    <div key={f} className="flex items-center gap-2 text-sm text-gray-300">
-                      <div className="w-4 h-4 rounded-full bg-green-900/40 border border-green-800 flex items-center justify-center flex-shrink-0">
-                        <div className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+                    <div key={f} className="flex items-center gap-3 text-sm">
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(20,241,149,0.12)", border: "1px solid rgba(20,241,149,0.25)" }}>
+                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#14F195" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                       </div>
-                      {f}
+                      <span style={{ color: "rgba(255,255,255,0.7)" }}>{f}</span>
                     </div>
                   ))}
                 </div>
-                <button
-                  onClick={() => setShowApp(true)}
-                  className={`w-full mt-6 py-3 rounded-xl text-sm font-medium transition-all ${p.featured ? "text-white hover:opacity-90" : "text-gray-300 border border-gray-700 hover:border-gray-500"}`}
-                  style={p.featured ? { background: "linear-gradient(135deg, #9945FF, #14F195)" } : {}}
-                >
+                {p.note && <p className="text-xs mb-6" style={{ color: "rgba(255,255,255,0.2)" }}>{p.note}</p>}
+                <button onClick={() => setShowApp(true)} className="w-full py-4 rounded-2xl text-sm font-bold transition-all hover:opacity-90" style={p.highlight ? { background: "linear-gradient(135deg, #9945FF, #14F195)", color: "white" } : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.1)" }}>
                   Inizia ora
                 </button>
               </div>
@@ -223,30 +373,61 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-24 px-6 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Pronto a lanciare?</h2>
-          <p className="text-gray-400 mb-8">Connetti il wallet e crea il tuo token in meno di 60 secondi.</p>
-          <button onClick={() => setShowApp(true)} className="px-10 py-4 rounded-2xl text-base font-semibold text-white transition-all hover:scale-105 hover:opacity-90" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}>
-            Lancia il tuo token
-          </button>
+      {/* FAQ */}
+      <section id="faq" className="relative px-6 py-28" style={{ zIndex: 1, background: "rgba(255,255,255,0.015)" }}>
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-20">
+            <p className="text-xs font-black tracking-widest uppercase mb-5" style={{ color: "#14F195" }}>FAQ</p>
+            <h2 className="font-black leading-tight" style={{ fontSize: "clamp(36px, 5vw, 56px)", letterSpacing: "-0.03em" }}>Hai domande?</h2>
+          </div>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            {FAQS.map(faq => <FAQItem key={faq.q} q={faq.q} a={faq.a} />)}
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-gray-800 py-8 px-6">
-  <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-    <div className="flex items-center gap-3">
-      <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}>S</div>
-      <span className="text-sm text-gray-500">SolMint — Powered by Solana and Metaplex</span>
-    </div>
-    <div className="flex items-center gap-6">
-      <a href="/privacy" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Privacy Policy</a>
-      <a href="/terms" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Termini e Condizioni</a>
-      <span className="text-xs text-gray-600"><a href="mailto:info@solmint.space">info@solmint.space</a></span>
-    </div>
-  </div>
-</footer>
+      {/* CTA */}
+      <section className="relative px-6 py-28" style={{ zIndex: 1 }}>
+        <div className="max-w-4xl mx-auto rounded-3xl p-16 text-center relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(153,69,255,0.12) 0%, rgba(20,241,149,0.06) 100%)", border: "1px solid rgba(153,69,255,0.2)" }}>
+          <div className="absolute inset-0 rounded-3xl" style={{ background: "radial-gradient(circle at 50% -20%, rgba(153,69,255,0.2) 0%, transparent 60%)" }} />
+          <div className="relative">
+            <h2 className="font-black leading-tight mb-6" style={{ fontSize: "clamp(36px, 6vw, 72px)", letterSpacing: "-0.03em" }}>Pronto<br />a lanciare?</h2>
+            <p className="text-lg mb-10 mx-auto" style={{ color: "rgba(255,255,255,0.4)", maxWidth: 400 }}>Connetti Phantom e crea il tuo token in meno di 60 secondi.</p>
+            <button onClick={() => setShowApp(true)} className="px-12 py-5 rounded-2xl text-lg font-black text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", boxShadow: "0 0 70px rgba(153,69,255,0.4)" }}>
+              Crea il tuo token
+            </button>
+            <p className="text-xs mt-6" style={{ color: "rgba(255,255,255,0.18)" }}>Piano Starter da 0.1 SOL + fee di rete</p>
+          </div>
+        </div>
+      </section>
 
+      {/* Footer */}
+      <footer className="relative px-6 py-14" style={{ zIndex: 1, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
+            <div className="flex items-center gap-3">
+              <Logo size={30} />
+              <div>
+                <div className="font-black text-white">SolMint</div>
+                <div className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>Non-custodial Token Launcher su Solana</div>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-8">
+              {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"]].map(([l, h]) => (
+                <a key={l} href={h} className="text-sm transition-colors" style={{ color: "rgba(255,255,255,0.3)" }} onMouseEnter={e => (e.currentTarget.style.color = "white")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>{l}</a>
+              ))}
+            </div>
+            <div className="flex items-center gap-6">
+              <a href="/privacy" className="text-xs" style={{ color: "rgba(255,255,255,0.22)" }} onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.22)")}>Privacy</a>
+              <a href="/terms" className="text-xs" style={{ color: "rgba(255,255,255,0.22)" }} onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.22)")}>Termini</a>
+              <a href="mailto:info@solmint.space" className="text-xs" style={{ color: "rgba(255,255,255,0.22)" }} onMouseEnter={e => (e.currentTarget.style.color = "#14F195")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.22)")}>info@solmint.space</a>
+            </div>
+          </div>
+          <div className="text-center text-xs pt-8" style={{ color: "rgba(255,255,255,0.1)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+            © 2026 SolMint. Tutti i diritti riservati. Costruito su Solana.
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
