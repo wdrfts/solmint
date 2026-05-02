@@ -13,64 +13,67 @@ const WalletMultiButton = dynamic(
 // Real SVG logos for partners
 const PartnerLogos: Record<string, ReactNode> = {
   Solana: (
-    <svg width="20" height="16" viewBox="0 0 397 311" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7zM64.6 3.8C67.1 1.4 70.4 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8zM333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z" fill="url(#solGrad)"/>
+    <svg width="22" height="18" viewBox="0 0 397 311" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z" fill="url(#solanaA)" />
+      <path d="M64.6 3.8C67.1 1.4 70.4 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z" fill="url(#solanaB)" />
+      <path d="M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z" fill="url(#solanaC)" />
       <defs>
-        <linearGradient id="solGrad" x1="0" y1="0" x2="397" y2="311" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#9945FF"/>
-          <stop offset="1" stopColor="#14F195"/>
-        </linearGradient>
+        <linearGradient id="solanaA" x1="360" y1="35" x2="141" y2="335" gradientUnits="userSpaceOnUse"><stop stopColor="#00FFA3"/><stop offset="1" stopColor="#DC1FFF"/></linearGradient>
+        <linearGradient id="solanaB" x1="263" y1="-74" x2="44" y2="226" gradientUnits="userSpaceOnUse"><stop stopColor="#00FFA3"/><stop offset="1" stopColor="#DC1FFF"/></linearGradient>
+        <linearGradient id="solanaC" x1="311" y1="-19" x2="92" y2="281" gradientUnits="userSpaceOnUse"><stop stopColor="#00FFA3"/><stop offset="1" stopColor="#DC1FFF"/></linearGradient>
       </defs>
     </svg>
   ),
   Metaplex: (
-    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
-      <rect width="100" height="100" rx="20" fill="#6B46C1"/>
-      <text x="50" y="67" textAnchor="middle" fill="white" fontSize="52" fontWeight="900" fontFamily="system-ui">M</text>
+    <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="16" fill="url(#metaplexG)" />
+      <path d="M17 45V19h8l7 11 7-11h8v26h-8V32l-7 10-7-10v13h-8z" fill="white"/>
+      <defs><linearGradient id="metaplexG" x1="0" y1="0" x2="64" y2="64"><stop stopColor="#FF4ECD"/><stop offset="0.5" stopColor="#875CFF"/><stop offset="1" stopColor="#00E7FF"/></linearGradient></defs>
     </svg>
   ),
   Raydium: (
-    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
-      <circle cx="50" cy="50" r="50" fill="#1B1F3B"/>
-      <path d="M30 35h25c8 0 14 6 14 14s-6 14-14 14H42l18 16H44L26 63h19c4 0 6-3 6-6s-2-6-6-6H30V35z" fill="#5BC4F5"/>
+    <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="16" fill="#10172A"/>
+      <path d="M18 18h20c8.3 0 14 5.4 14 13.1 0 6-3.4 10.5-8.8 12.2L53 53H40.5l-8.8-9.1H29V53H18V18zm11 9.6v7.9h8.4c2.5 0 4.1-1.6 4.1-4s-1.6-3.9-4.1-3.9H29z" fill="#22D3EE"/>
+      <path d="M45 13l6 6M51 13l-6 6" stroke="#A855F7" strokeWidth="3" strokeLinecap="round"/>
     </svg>
   ),
   Pinata: (
-    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
-      <circle cx="50" cy="50" r="50" fill="#6C10A1"/>
-      <text x="50" y="67" textAnchor="middle" fill="white" fontSize="42" fontWeight="900" fontFamily="system-ui">P</text>
+    <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="16" fill="#6D28D9"/>
+      <path d="M32 10c8 0 14 6 14 14 0 10-14 30-14 30S18 34 18 24c0-8 6-14 14-14z" fill="#FDE047"/>
+      <circle cx="32" cy="24" r="6" fill="#6D28D9"/>
     </svg>
   ),
   Phantom: (
-    <svg width="20" height="20" viewBox="0 0 128 128" fill="none">
+    <svg width="22" height="22" viewBox="0 0 128 128" fill="none">
       <rect width="128" height="128" rx="28" fill="#AB9FF2"/>
-      <path d="M110.5 64c0 25.4-20.6 46-46 46-25.4 0-46-20.6-46-46s20.6-46 46-46 46 20.6 46 46z" fill="#4B44AF"/>
-      <path d="M89 50c0 11-8.9 20-20 20s-20-9-20-20 8.9-20 20-20 20 9 20 20z" fill="white"/>
-      <circle cx="64" cy="78" r="10" fill="white"/>
+      <path d="M64 20c25 0 45 19.2 45 43 0 23.7-20 43-45 43H39c-6.5 0-10.2-7.5-6.1-12.5l6.3-7.7C27.3 78.4 19 66.6 19 53c0-18.2 15.3-33 34.2-33H64z" fill="#4C43B8"/>
+      <circle cx="48" cy="57" r="6" fill="white"/>
+      <circle cx="78" cy="57" r="6" fill="white"/>
+      <path d="M51 77c8 6 18 6 26 0" stroke="white" strokeWidth="6" strokeLinecap="round"/>
     </svg>
   ),
   Dexscreener: (
-    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
-      <rect width="100" height="100" rx="18" fill="#0A0A0A"/>
-      <path d="M15 75L35 45l15 20 15-30 20 40" stroke="#00D4AA" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      <circle cx="75" cy="55" r="6" fill="#00D4AA"/>
+    <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="16" fill="#050505"/>
+      <path d="M12 45l11-17 9 12 9-22 11 27" stroke="#00D4AA" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="44" cy="26" r="5" fill="#00D4AA"/>
     </svg>
   ),
   Axiom: (
-    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
-      <rect width="100" height="100" rx="18" fill="#111"/>
-      <path d="M20 80L50 20l30 60H20z" stroke="white" strokeWidth="5" fill="none" strokeLinejoin="round"/>
-      <line x1="30" y1="65" x2="70" y2="65" stroke="white" strokeWidth="5" strokeLinecap="round"/>
+    <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="16" fill="#0B0B0F"/>
+      <path d="M14 49L32 14l18 35H14z" stroke="white" strokeWidth="4.5" strokeLinejoin="round"/>
+      <path d="M23 39h18" stroke="#14F195" strokeWidth="4.5" strokeLinecap="round"/>
     </svg>
   ),
   Photon: (
-    <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
-      <circle cx="50" cy="50" r="50" fill="#1a1a2e"/>
-      <circle cx="50" cy="50" r="22" fill="none" stroke="#FFD700" strokeWidth="5"/>
-      <line x1="50" y1="10" x2="50" y2="25" stroke="#FFD700" strokeWidth="4" strokeLinecap="round"/>
-      <line x1="50" y1="75" x2="50" y2="90" stroke="#FFD700" strokeWidth="4" strokeLinecap="round"/>
-      <line x1="10" y1="50" x2="25" y2="50" stroke="#FFD700" strokeWidth="4" strokeLinecap="round"/>
-      <line x1="75" y1="50" x2="90" y2="50" stroke="#FFD700" strokeWidth="4" strokeLinecap="round"/>
+    <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="16" fill="#111827"/>
+      <circle cx="32" cy="32" r="10" fill="#FFD700"/>
+      <circle cx="32" cy="32" r="20" stroke="#FFD700" strokeWidth="3" opacity="0.45"/>
+      <path d="M32 6v10M32 48v10M6 32h10M48 32h10" stroke="#FFD700" strokeWidth="4" strokeLinecap="round"/>
     </svg>
   ),
 };
@@ -133,6 +136,11 @@ function Logo({ size = 32 }: { size?: number }) {
 export default function Home() {
   const [tab, setTab] = useState("create");
   const [showApp, setShowApp] = useState(false);
+useEffect(() => {
+  if (typeof window !== "undefined" && window.location.search.includes("app=true")) {
+    setShowApp(true);
+  }
+}, []);
   const [scrolled, setScrolled] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -173,7 +181,7 @@ export default function Home() {
 
   if (showApp) {
     return (
-      <main className="min-h-screen" style={{ background: "#07070f" }}>
+      <main className="min-h-screen" style={{ background: "transparent" }}>
         <header className="border-b px-6 py-4 sticky top-0 z-50" style={{ borderColor: "rgba(255,255,255,0.07)", background: "rgba(7,7,15,0.98)", backdropFilter: "blur(20px)" }}>
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setShowApp(false)}>
@@ -200,19 +208,73 @@ export default function Home() {
     <main className="min-h-screen overflow-x-hidden" style={{ background: "#07070f", color: "white" }}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }} />
       <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-        <div className="absolute rounded-full" style={{ width: 800, height: 800, top: -300, left: "50%", transform: "translateX(-50%)", background: "radial-gradient(circle, rgba(153,69,255,0.1) 0%, transparent 70%)", filter: "blur(60px)" }} />
-        <div className="absolute rounded-full" style={{ width: 500, height: 500, bottom: "15%", right: "-150px", background: "radial-gradient(circle, rgba(20,241,149,0.06) 0%, transparent 70%)", filter: "blur(80px)" }} />
-      </div>
+  <div
+    className="absolute inset-0"
+    style={{
+      background:
+        "radial-gradient(circle at 50% 0%, rgba(153,69,255,0.16) 0%, transparent 38%), radial-gradient(circle at 85% 28%, rgba(20,241,149,0.10) 0%, transparent 34%), radial-gradient(circle at 15% 45%, rgba(153,69,255,0.10) 0%, transparent 32%), linear-gradient(180deg, #07070f 0%, #090914 45%, #050509 100%)",
+    }}
+  />
+  <div
+    className="absolute inset-0"
+    style={{
+      backgroundImage:
+        "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+      backgroundSize: "72px 72px",
+      maskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
+      WebkitMaskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
+    }}
+  />
+  <div
+    className="absolute rounded-full"
+    style={{
+      width: 900,
+      height: 900,
+      top: -360,
+      left: "50%",
+      transform: "translateX(-50%)",
+      background:
+        "radial-gradient(circle, rgba(153,69,255,0.18) 0%, rgba(153,69,255,0.055) 32%, transparent 70%)",
+      filter: "blur(70px)",
+    }}
+  />
+  <div
+    className="absolute rounded-full"
+    style={{
+      width: 620,
+      height: 620,
+      bottom: "8%",
+      right: "-190px",
+      background:
+        "radial-gradient(circle, rgba(20,241,149,0.12) 0%, rgba(20,241,149,0.035) 38%, transparent 72%)",
+      filter: "blur(90px)",
+    }}
+  />
+  <div
+    className="absolute rounded-full"
+    style={{
+      width: 460,
+      height: 460,
+      top: "34%",
+      left: "-170px",
+      background:
+        "radial-gradient(circle, rgba(153,69,255,0.12) 0%, rgba(153,69,255,0.03) 40%, transparent 72%)",
+      filter: "blur(80px)",
+    }}
+  />
+</div>
+ 
+      
 
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300" style={{ background: scrolled ? "rgba(7,7,15,0.96)" : "transparent", backdropFilter: scrolled ? "blur(24px)" : "none", borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300" style={{ background: scrolled ? "rgba(7,7,15,0.96)" : "transparent", backdropFilter: scrolled ? "blur(24px)" : "none", borderBottom: "1px solid transparent" }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Logo size={32} />
             <span className="font-black text-xl tracking-tight">SolMint</span>
           </div>
           <div className="hidden md:flex items-center gap-10">
-            {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"]].map(([label, href]) => (
+            {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"], ["Trending", "/trending"], ["Guide", "/guides"]].map(([label, href]) => (
               <a key={label} href={href} className="text-sm font-medium transition-colors" style={{ color: "rgba(255,255,255,0.45)" }} onMouseEnter={e => (e.currentTarget.style.color = "white")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.45)")}>{label}</a>
             ))}
           </div>
@@ -413,7 +475,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-wrap justify-center gap-8">
-              {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"]].map(([l, h]) => (
+              {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"], ["Trending", "/trending"], ["Guide", "/guides"]].map(([l, h]) => (
                 <a key={l} href={h} className="text-sm transition-colors" style={{ color: "rgba(255,255,255,0.3)" }} onMouseEnter={e => (e.currentTarget.style.color = "white")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>{l}</a>
               ))}
             </div>

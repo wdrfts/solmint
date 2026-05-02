@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SolanaWalletProvider } from "@/components/WalletProvider";
+import PremiumBackground from "@/components/PremiumBackground";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,9 +18,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="it">
-      <body className={`${inter.className} bg-gray-950 text-white min-h-screen`}>
+      <body className={`${inter.className} text-white min-h-screen`} style={{ background: "#07070f" }}>
+        <PremiumBackground />
         <SolanaWalletProvider>
-          {children}
+          <div style={{ position: "relative", zIndex: 1 }}>
+            {children}
+          </div>
         </SolanaWalletProvider>
       </body>
     </html>

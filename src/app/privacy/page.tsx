@@ -1,6 +1,6 @@
 export default function Privacy() {
   return (
-    <main className="min-h-screen bg-gray-950 text-white px-6 py-24">
+    <main className="min-h-screen text-white px-6 py-24" style={{ background: "transparent" }}>
       <div className="max-w-3xl mx-auto">
         <a href="/" className="text-sm text-purple-400 mb-8 block">Torna alla home</a>
         <h1 className="text-4xl font-bold mb-2">Privacy Policy</h1>
@@ -33,7 +33,7 @@ export default function Privacy() {
           </section>
         </div>
       </div>
-      <footer className="border-t border-gray-800 py-8 px-6">
+      <footer className="border-t py-8 px-6" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
   <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
     <div className="flex items-center gap-3">
       <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}>S</div>
