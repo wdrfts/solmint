@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import PremiumBackground from "@/components/PremiumBackground";
 
 interface Token {
   address: string;
@@ -18,6 +17,7 @@ interface Token {
   liquidity: number;
   age: number | null;
   dexUrl: string;
+  isNew?: boolean;
 }
 
 function formatNum(n: number): string {
@@ -39,75 +39,73 @@ function timeAgo(ts: number | null): string {
 
 function TokenCard({ token, index }: { token: Token; index: number }) {
   const [visible, setVisible] = useState(false);
+  const [highlight, setHighlight] = useState(token.isNew || false);
   const isPositive = token.priceChange24h >= 0;
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), index * 80);
+    const timer = setTimeout(() => setVisible(true), index * 60);
     return () => clearTimeout(timer);
   }, [index]);
+
+  useEffect(() => {
+    if (token.isNew) {
+      setHighlight(true);
+      const t = setTimeout(() => setHighlight(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [token.isNew]);
 
   return (
     <div
       className={visible ? "animate-token-reveal" : ""}
       style={{
         opacity: visible ? 1 : 0,
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.07)",
+        background: highlight
+          ? "linear-gradient(135deg, rgba(153,69,255,0.15), rgba(20,241,149,0.08))"
+          : "rgba(255,255,255,0.03)",
+        border: highlight
+          ? "1px solid rgba(153,69,255,0.5)"
+          : "1px solid rgba(255,255,255,0.07)",
         borderRadius: 20,
         padding: 20,
-        transition: "border-color 0.2s, transform 0.2s",
+        transition: "all 0.5s",
         cursor: "default",
+        boxShadow: highlight ? "0 0 30px rgba(153,69,255,0.2)" : "none",
       }}
       onMouseEnter={e => {
         (e.currentTarget as HTMLElement).style.borderColor = "rgba(153,69,255,0.4)";
         (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
       }}
       onMouseLeave={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)";
+        (e.currentTarget as HTMLElement).style.borderColor = highlight ? "rgba(153,69,255,0.5)" : "rgba(255,255,255,0.07)";
         (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
       }}
     >
+      {/* NEW badge */}
+      {highlight && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+          <span style={{ fontSize: 10, fontWeight: 900, padding: "3px 10px", borderRadius: 100, background: "linear-gradient(135deg, #9945FF, #14F195)", color: "white", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            NEW
+          </span>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ position: "relative", width: 48, height: 48, flexShrink: 0 }}>
-  {token.icon && (
-    <img
-      src={token.icon}
-      alt={token.name}
-      style={{
-        width: 48,
-        height: 48,
-        borderRadius: "50%",
-        objectFit: "cover",
-        background: "rgba(255,255,255,0.1)",
-        position: "absolute",
-        inset: 0,
-        zIndex: 2,
-      }}
-      onError={e => {
-        (e.currentTarget as HTMLImageElement).style.display = "none";
-      }}
-    />
-  )}
-
-  <div
-    style={{
-      width: 48,
-      height: 48,
-      borderRadius: "50%",
-      background: "linear-gradient(135deg, #9945FF, #14F195)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: 18,
-      fontWeight: 900,
-      color: "white",
-    }}
-  >
-    {token.symbol?.[0] || "?"}
-  </div>
-</div>
+            {token.icon && (
+              <img
+                src={token.icon}
+                alt={token.name}
+                style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", position: "absolute", inset: 0, zIndex: 2 }}
+                onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            )}
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #9945FF, #14F195)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 900, color: "white" }}>
+              {token.symbol?.[0] || "?"}
+            </div>
+          </div>
           <div>
             <div style={{ fontWeight: 800, fontSize: 16, color: "white", marginBottom: 2 }}>
               {token.name?.length > 18 ? token.name.slice(0, 18) + "..." : token.name}
@@ -159,7 +157,7 @@ function TokenCard({ token, index }: { token: Token; index: number }) {
         </span>
       </div>
 
-      {/* Buttons */}
+      {/* Button */}
       <a
         href={token.dexUrl}
         target="_blank"
@@ -187,7 +185,7 @@ function SkeletonCard() {
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-        {[0,1,2].map(i => <div key={i} className="skeleton" style={{ height: 50, borderRadius: 10 }} />)}
+        {[0, 1, 2].map(i => <div key={i} className="skeleton" style={{ height: 50, borderRadius: 10 }} />)}
       </div>
       <div className="skeleton" style={{ height: 42, borderRadius: 14 }} />
     </div>
@@ -203,11 +201,18 @@ export default function TrendingPage() {
 
   const fetchTokens = useCallback(async () => {
     try {
-      const res = await fetch(`/api/trending?t=${Date.now()}`, {
-  cache: "no-store",
-});
+      const res = await fetch(`/api/trending?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
-      setTokens(data.tokens || []);
+      const newTokens: Token[] = data.tokens || [];
+
+      setTokens(prev => {
+        const prevAddresses = new Set(prev.map((t: Token) => t.address));
+        return newTokens.map((t: Token) => ({
+          ...t,
+          isNew: prevAddresses.size > 0 && !prevAddresses.has(t.address),
+        }));
+      });
+
       setLastUpdate(new Date());
     } catch {
       // silently fail
@@ -222,7 +227,7 @@ export default function TrendingPage() {
 
   useEffect(() => {
     if (!autoRefresh) return;
-    const interval = setInterval(fetchTokens, 5000);
+    const interval = setInterval(fetchTokens, 1000);
     return () => clearInterval(interval);
   }, [autoRefresh, fetchTokens]);
 
@@ -236,7 +241,10 @@ export default function TrendingPage() {
     <main style={{ minHeight: "100vh", background: "#07070f", color: "white" }}>
 
       {/* Gradient bg */}
-      <PremiumBackground />
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
+        <div style={{ position: "absolute", width: 700, height: 700, top: -300, left: "50%", transform: "translateX(-50%)", background: "radial-gradient(circle, rgba(153,69,255,0.1) 0%, transparent 70%)", filter: "blur(80px)" }} />
+        <div style={{ position: "absolute", width: 500, height: 500, bottom: "10%", right: "-150px", background: "radial-gradient(circle, rgba(20,241,149,0.06) 0%, transparent 70%)", filter: "blur(80px)" }} />
+      </div>
 
       {/* Nav */}
       <nav style={{ position: "sticky", top: 0, zIndex: 50, padding: "16px 24px", background: "rgba(7,7,15,0.95)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -265,13 +273,19 @@ export default function TrendingPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
             <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#14F195", boxShadow: "0 0 12px #14F195" }} className="animate-pulse-glow" />
             <span style={{ fontSize: 12, fontWeight: 700, color: "#14F195", textTransform: "uppercase", letterSpacing: "0.1em" }}>Live</span>
-            {lastUpdate && <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>Aggiornato {lastUpdate.toLocaleTimeString("it-IT")}</span>}
+            {lastUpdate && (
+              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>
+                Aggiornato {lastUpdate.toLocaleTimeString("it-IT")}
+              </span>
+            )}
           </div>
           <h1 style={{ fontSize: "clamp(32px, 6vw, 64px)", fontWeight: 900, letterSpacing: "-0.03em", marginBottom: 12 }}>
             Trending
             <span style={{ background: "linear-gradient(90deg, #9945FF, #14F195)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}> Solana</span>
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 16 }}>I token Solana più caldi in questo momento. Dati live da DexScreener.</p>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 16 }}>
+            I token Solana più caldi in questo momento. Dati live da DexScreener.
+          </p>
         </div>
 
         {/* Controls */}
@@ -285,10 +299,16 @@ export default function TrendingPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>Auto-refresh</span>
-            <button onClick={() => setAutoRefresh(!autoRefresh)} style={{ width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer", background: autoRefresh ? "#9945FF" : "rgba(255,255,255,0.1)", position: "relative", transition: "background 0.2s" }}>
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              style={{ width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer", background: autoRefresh ? "#9945FF" : "rgba(255,255,255,0.1)", position: "relative", transition: "background 0.2s" }}
+            >
               <div style={{ width: 18, height: 18, borderRadius: "50%", background: "white", position: "absolute", top: 3, left: autoRefresh ? 23 : 3, transition: "left 0.2s" }} />
             </button>
-            <button onClick={fetchTokens} style={{ padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+            <button
+              onClick={fetchTokens}
+              style={{ padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+            >
               Aggiorna
             </button>
           </div>
@@ -298,7 +318,9 @@ export default function TrendingPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
           {loading
             ? Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={i} />)
-            : filtered.map((token, i) => <TokenCard key={token.address} token={token} index={i} />)
+            : filtered.map((token, i) => (
+                <TokenCard key={token.address} token={token} index={i} />
+              ))
           }
         </div>
 
