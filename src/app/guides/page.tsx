@@ -891,6 +891,7 @@ export default function GuidesPage() {
             <Link href="/" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Home</Link>
             <Link href="/trending" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Trending</Link>
             <Link href="/guides" style={{ color: "white", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>Guide</Link>
+<Link href="/ai-meme" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>AI Meme</Link>
           </div>
         </div>
       </nav>

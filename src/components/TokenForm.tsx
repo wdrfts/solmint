@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { createToken, TokenConfig } from "@/lib/createToken";
 import { uploadImageToIPFS, uploadMetadataToIPFS } from "@/lib/uploadMetadata";
@@ -29,6 +29,38 @@ export default function TokenForm() {
   const [status, setStatus] = useState("");
   const [mintAddress, setMintAddress] = useState("");
   const [error, setError] = useState("");
+  useEffect(() => {
+  const draftRaw = sessionStorage.getItem("aiTokenDraft");
+  if (!draftRaw) return;
+
+  try {
+    const draft = JSON.parse(draftRaw);
+
+    if (draft.name) setName(draft.name);
+    if (draft.symbol) setSymbol(String(draft.symbol).toUpperCase());
+    if (draft.description) setDescription(draft.description);
+
+    if (draft.imageBase64) {
+      fetch(draft.imageBase64)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const file = new File([blob], `${draft.symbol || "token"}-logo.png`, {
+            type: blob.type || "image/png",
+          });
+
+          setImage(file);
+          setImagePreview(draft.imageBase64);
+        })
+        .catch(() => {
+          console.warn("Impossibile caricare immagine AI nel form");
+        });
+    }
+
+    sessionStorage.removeItem("aiTokenDraft");
+  } catch (err) {
+    console.warn("Draft AI non valido:", err);
+  }
+}, []);
 
   const revokeCount = [revokeMint, revokeFreeze, revokeUpdate].filter(Boolean).length;
   const baseFee = 0.1;

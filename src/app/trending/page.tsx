@@ -261,7 +261,8 @@ export default function TrendingPage() {
           <div style={{ display: "flex", gap: 24 }}>
             <Link href="/" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Home</Link>
             <Link href="/trending" style={{ color: "white", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>Trending</Link>
-            <Link href="/guides" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Guide</Link>
+            <Link href="/guides" style={{ color: "white", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>Guide</Link>
+<Link href="/ai-meme" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>AI Meme</Link>
           </div>
         </div>
       </nav>

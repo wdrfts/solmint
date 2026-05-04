@@ -274,7 +274,7 @@ useEffect(() => {
             <span className="font-black text-xl tracking-tight">SolMint</span>
           </div>
           <div className="hidden md:flex items-center gap-10">
-            {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"], ["Trending", "/trending"], ["Guide", "/guides"]].map(([label, href]) => (
+            {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"], ["Trending", "/trending"], ["Guide", "/guides"], ["AI Meme", "/ai-meme"]].map(([label, href]) => (
               <a key={label} href={href} className="text-sm font-medium transition-colors" style={{ color: "rgba(255,255,255,0.45)" }} onMouseEnter={e => (e.currentTarget.style.color = "white")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.45)")}>{label}</a>
             ))}
           </div>
@@ -475,7 +475,7 @@ useEffect(() => {
               </div>
             </div>
             <div className="flex flex-wrap justify-center gap-8">
-              {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"], ["Trending", "/trending"], ["Guide", "/guides"]].map(([l, h]) => (
+              {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"], ["Trending", "/trending"], ["Guide", "/guides"], ["AI Meme", "/ai-meme"]].map(([l, h]) => (
                 <a key={l} href={h} className="text-sm transition-colors" style={{ color: "rgba(255,255,255,0.3)" }} onMouseEnter={e => (e.currentTarget.style.color = "white")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>{l}</a>
               ))}
             </div>
