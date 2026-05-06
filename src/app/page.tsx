@@ -96,6 +96,33 @@ const STEPS = [
   { n: "4", title: "Aggiungi liquidità e vai live", desc: "Crea una pool su Raydium. Appena aggiunta la liquidità il token è visibile e tradabile su tutti i DEX.", tag: "Dexscreener · Axiom · Photon", color: "#14F195" },
 ];
 
+const AI_TREND_SECTIONS = [
+  {
+    icon: "🔥",
+    title: "Scopri cosa sta pumpando",
+    desc: "Analizza i token Solana trending in tempo reale e capisci quali narrative stanno attirando volume, market cap e attenzione.",
+    href: "/trending",
+    cta: "Vedi Trending",
+    color: "#14F195",
+  },
+  {
+    icon: "🤖",
+    title: "Genera idee meme con AI",
+    desc: "Usa i trend reali del momento per creare nome, simbolo, descrizione, strategia e prompt immagine per la tua prossima memecoin.",
+    href: "/ai-meme",
+    cta: "Apri AI Meme",
+    color: "#9945FF",
+  },
+  {
+    icon: "🚀",
+    title: "Da idea a token live",
+    desc: "Trova la narrativa, genera il concept, crea il token SPL e lancia la pool. Tutto nello stesso ecosistema.",
+    href: "?app=true",
+    cta: "Crea Token",
+    color: "#14F195",
+  },
+];
+
 const FAQS = [
   { q: "SolMint è sicuro?", a: "Sì. SolMint non ha mai accesso alle tue chiavi private. Tutto avviene tramite il tuo wallet Phantom. Il codice è open source e verificabile." },
   { q: "Il mio token apparirà su Dexscreener?", a: "Sì, automaticamente. Non appena crei una liquidity pool su Raydium, il tuo token viene listato su Dexscreener, Photon, Axiom e tutti i principali aggregatori." },
@@ -136,11 +163,13 @@ function Logo({ size = 32 }: { size?: number }) {
 export default function Home() {
   const [tab, setTab] = useState("create");
   const [showApp, setShowApp] = useState(false);
-useEffect(() => {
-  if (typeof window !== "undefined" && window.location.search.includes("app=true")) {
-    setShowApp(true);
-  }
-}, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("app=true")) {
+      setShowApp(true);
+    }
+  }, []);
+
   const [scrolled, setScrolled] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -159,19 +188,27 @@ useEffect(() => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     const ps = Array.from({ length: 80 }, () => ({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
-      r: Math.random() * 1.2 + 0.3, o: Math.random() * 0.3 + 0.05,
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      r: Math.random() * 1.2 + 0.3,
+      o: Math.random() * 0.3 + 0.05,
     }));
     let id: number;
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ps.forEach(p => {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(153,69,255,${p.o})`; ctx.fill();
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(153,69,255,${p.o})`;
+        ctx.fill();
       });
       id = requestAnimationFrame(draw);
     };
@@ -192,14 +229,19 @@ useEffect(() => {
             <WalletMultiButton style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", borderRadius: "10px", fontSize: "13px", padding: "8px 16px", height: "auto", fontFamily: "inherit" }} />
           </div>
         </header>
+
         <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
           <div className="flex gap-1 p-1 rounded-xl mb-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
             <button onClick={() => setTab("create")} className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all" style={tab === "create" ? { background: "linear-gradient(135deg, #9945FF, #14F195)", color: "white" } : { color: "rgba(255,255,255,0.4)" }}>Crea Token</button>
             <button onClick={() => setTab("pool")} className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all" style={tab === "pool" ? { background: "linear-gradient(135deg, #9945FF, #14F195)", color: "white" } : { color: "rgba(255,255,255,0.4)" }}>Liquidity Pool</button>
           </div>
         </div>
+
         {tab === "create" ? <TokenForm /> : <LiquidityPool />}
-        <footer className="text-center py-10 text-xs" style={{ color: "rgba(255,255,255,0.12)" }}>SolMint — Non-custodial Token Launcher su Solana</footer>
+
+        <footer className="text-center py-10 text-xs" style={{ color: "rgba(255,255,255,0.12)" }}>
+          SolMint — Non-custodial Token Launcher su Solana
+        </footer>
       </main>
     );
   }
@@ -207,64 +249,63 @@ useEffect(() => {
   return (
     <main className="min-h-screen overflow-x-hidden" style={{ background: "#07070f", color: "white" }}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }} />
+
       <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-  <div
-    className="absolute inset-0"
-    style={{
-      background:
-        "radial-gradient(circle at 50% 0%, rgba(153,69,255,0.16) 0%, transparent 38%), radial-gradient(circle at 85% 28%, rgba(20,241,149,0.10) 0%, transparent 34%), radial-gradient(circle at 15% 45%, rgba(153,69,255,0.10) 0%, transparent 32%), linear-gradient(180deg, #07070f 0%, #090914 45%, #050509 100%)",
-    }}
-  />
-  <div
-    className="absolute inset-0"
-    style={{
-      backgroundImage:
-        "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
-      backgroundSize: "72px 72px",
-      maskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
-      WebkitMaskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
-    }}
-  />
-  <div
-    className="absolute rounded-full"
-    style={{
-      width: 900,
-      height: 900,
-      top: -360,
-      left: "50%",
-      transform: "translateX(-50%)",
-      background:
-        "radial-gradient(circle, rgba(153,69,255,0.18) 0%, rgba(153,69,255,0.055) 32%, transparent 70%)",
-      filter: "blur(70px)",
-    }}
-  />
-  <div
-    className="absolute rounded-full"
-    style={{
-      width: 620,
-      height: 620,
-      bottom: "8%",
-      right: "-190px",
-      background:
-        "radial-gradient(circle, rgba(20,241,149,0.12) 0%, rgba(20,241,149,0.035) 38%, transparent 72%)",
-      filter: "blur(90px)",
-    }}
-  />
-  <div
-    className="absolute rounded-full"
-    style={{
-      width: 460,
-      height: 460,
-      top: "34%",
-      left: "-170px",
-      background:
-        "radial-gradient(circle, rgba(153,69,255,0.12) 0%, rgba(153,69,255,0.03) 40%, transparent 72%)",
-      filter: "blur(80px)",
-    }}
-  />
-</div>
- 
-      
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 0%, rgba(153,69,255,0.16) 0%, transparent 38%), radial-gradient(circle at 85% 28%, rgba(20,241,149,0.10) 0%, transparent 34%), radial-gradient(circle at 15% 45%, rgba(153,69,255,0.10) 0%, transparent 32%), linear-gradient(180deg, #07070f 0%, #090914 45%, #050509 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+            maskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
+            WebkitMaskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
+          }}
+        />
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 900,
+            height: 900,
+            top: -360,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background:
+              "radial-gradient(circle, rgba(153,69,255,0.18) 0%, rgba(153,69,255,0.055) 32%, transparent 70%)",
+            filter: "blur(70px)",
+          }}
+        />
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 620,
+            height: 620,
+            bottom: "8%",
+            right: "-190px",
+            background:
+              "radial-gradient(circle, rgba(20,241,149,0.12) 0%, rgba(20,241,149,0.035) 38%, transparent 72%)",
+            filter: "blur(90px)",
+          }}
+        />
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 460,
+            height: 460,
+            top: "34%",
+            left: "-170px",
+            background:
+              "radial-gradient(circle, rgba(153,69,255,0.12) 0%, rgba(153,69,255,0.03) 40%, transparent 72%)",
+            filter: "blur(80px)",
+          }}
+        />
+      </div>
 
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300" style={{ background: scrolled ? "rgba(7,7,15,0.96)" : "transparent", backdropFilter: scrolled ? "blur(24px)" : "none", borderBottom: "1px solid transparent" }}>
@@ -289,8 +330,9 @@ useEffect(() => {
         <div className="max-w-5xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-12" style={{ background: "rgba(153,69,255,0.1)", border: "1px solid rgba(153,69,255,0.2)", color: "rgba(255,255,255,0.65)" }}>
             <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#14F195", boxShadow: "0 0 8px #14F195" }} />
-            Trustless · Non-custodial · Open source
+            Trustless · Non-custodial · AI-powered
           </div>
+
           <h1 className="font-black mb-8 leading-none" style={{ fontSize: "clamp(44px, 9vw, 100px)", letterSpacing: "-0.04em" }}>
             <span style={{ color: "rgba(255,255,255,0.95)" }}>Il modo più semplice</span>
             <br />
@@ -298,9 +340,11 @@ useEffect(() => {
             <br />
             <span style={{ color: "rgba(255,255,255,0.95)" }}>su Solana.</span>
           </h1>
-          <p className="text-lg md:text-xl mb-12 mx-auto leading-relaxed" style={{ color: "rgba(255,255,255,0.4)", maxWidth: 520 }}>
-            Crea token SPL professionali in 60 secondi. Nessun codice. Nessun intermediario. Solo tu, Phantom e la blockchain.
+
+          <p className="text-lg md:text-xl mb-12 mx-auto leading-relaxed" style={{ color: "rgba(255,255,255,0.4)", maxWidth: 620 }}>
+            Crea token SPL professionali in 60 secondi. Usa i trend Solana e l’AI Meme Generator per trovare la narrativa giusta prima di lanciare.
           </p>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button onClick={() => setShowApp(true)} className="px-10 py-4 rounded-2xl text-base font-black text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", boxShadow: "0 0 50px rgba(153,69,255,0.35)" }}>
               Crea il tuo token
@@ -308,8 +352,14 @@ useEffect(() => {
             <a href="#come-funziona" className="px-10 py-4 rounded-2xl text-base font-semibold transition-all hover:scale-105" style={{ color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)" }}>
               Come funziona
             </a>
+            <a href="/ai-meme" className="px-10 py-4 rounded-2xl text-base font-semibold transition-all hover:scale-105" style={{ color: "#14F195", border: "1px solid rgba(20,241,149,0.18)", background: "rgba(20,241,149,0.05)" }}>
+              Genera idea AI
+            </a>
           </div>
-          <p className="text-xs mt-6" style={{ color: "rgba(255,255,255,0.18)" }}>Nessuna registrazione. Connetti Phantom e inizia.</p>
+
+          <p className="text-xs mt-6" style={{ color: "rgba(255,255,255,0.18)" }}>
+            Nessuna registrazione. Connetti Phantom, trova il trend e inizia.
+          </p>
         </div>
       </section>
 
@@ -325,6 +375,51 @@ useEffect(() => {
               <div className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>{s.label}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* AI + Trending */}
+      <section className="relative px-6 py-20" style={{ zIndex: 1 }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-xs font-black tracking-widest uppercase mb-5" style={{ color: "#14F195" }}>
+              Trending + AI Meme
+            </p>
+            <h2 className="font-black leading-tight mb-5" style={{ fontSize: "clamp(34px, 5vw, 58px)", letterSpacing: "-0.03em" }}>
+              Non lanciare a caso.<br />Lancia sulla narrativa giusta.
+            </h2>
+            <p className="mx-auto text-base md:text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.42)", maxWidth: 680 }}>
+              SolMint non è solo un token launcher: ti aiuta a trovare i trend Solana più forti, trasformarli in idee memecoin e lanciarle on-chain in pochi minuti.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5">
+            {AI_TREND_SECTIONS.map(item => (
+              <a
+                key={item.title}
+                href={item.href}
+                className="group p-8 rounded-3xl transition-all hover:scale-105"
+                style={{
+                  background: "rgba(255,255,255,0.035)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  textDecoration: "none",
+                }}
+              >
+                <div className="text-4xl mb-7">{item.icon}</div>
+                <h3 className="text-xl font-black mb-3 text-white">{item.title}</h3>
+                <p className="text-sm leading-relaxed mb-7" style={{ color: "rgba(255,255,255,0.42)" }}>
+                  {item.desc}
+                </p>
+                <span
+                  className="inline-flex items-center gap-2 text-sm font-black transition-all group-hover:gap-3"
+                  style={{ color: item.color }}
+                >
+                  {item.cta}
+                  <span>→</span>
+                </span>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -351,6 +446,7 @@ useEffect(() => {
             <h2 className="font-black leading-tight mb-5" style={{ fontSize: "clamp(36px, 5vw, 56px)", letterSpacing: "-0.03em" }}>Tutto quello<br />che ti serve.</h2>
             <p style={{ color: "rgba(255,255,255,0.38)", lineHeight: 1.7 }}>Una piattaforma completa per creare token professionali su Solana. Nessun compromesso.</p>
           </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {FEATURES.map(f => (
               <div key={f.num} className="p-8 rounded-3xl transition-all hover:scale-105 hover:border-purple-500" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -376,6 +472,7 @@ useEffect(() => {
             <p className="text-xs font-black tracking-widest uppercase mb-5" style={{ color: "#14F195" }}>Come funziona</p>
             <h2 className="font-black leading-tight" style={{ fontSize: "clamp(36px, 5vw, 56px)", letterSpacing: "-0.03em" }}>Quattro step.<br />Token live.</h2>
           </div>
+
           <div className="space-y-5">
             {STEPS.map((s, i) => (
               <div key={s.n} className="flex gap-6 md:gap-10 items-start p-8 rounded-3xl transition-all hover:scale-101" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -401,6 +498,7 @@ useEffect(() => {
             <h2 className="font-black leading-tight mb-5" style={{ fontSize: "clamp(36px, 5vw, 56px)", letterSpacing: "-0.03em" }}>Trasparenti.<br />Definitivi.</h2>
             <p style={{ color: "rgba(255,255,255,0.35)" }}>Paghi una volta. Nessun abbonamento. Nessuna sorpresa.</p>
           </div>
+
           <div className="grid md:grid-cols-3 gap-6">
             {[
               { name: "Starter", price: "0.1", badge: null, highlight: false, features: ["Token SPL on-chain", "Metadata su IPFS", "Logo + link social", "Visibile su tutti i DEX*"], note: "* dopo aggiunta liquidità" },
@@ -415,6 +513,7 @@ useEffect(() => {
                   <span className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.4)" }}>SOL</span>
                 </div>
                 <p className="text-xs mb-8" style={{ color: "rgba(255,255,255,0.2)" }}>+ fee di rete (~0.01 SOL)</p>
+
                 <div className="space-y-3 mb-8">
                   {p.features.map(f => (
                     <div key={f} className="flex items-center gap-3 text-sm">
@@ -425,7 +524,9 @@ useEffect(() => {
                     </div>
                   ))}
                 </div>
+
                 {p.note && <p className="text-xs mb-6" style={{ color: "rgba(255,255,255,0.2)" }}>{p.note}</p>}
+
                 <button onClick={() => setShowApp(true)} className="w-full py-4 rounded-2xl text-sm font-bold transition-all hover:opacity-90" style={p.highlight ? { background: "linear-gradient(135deg, #9945FF, #14F195)", color: "white" } : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.1)" }}>
                   Inizia ora
                 </button>
@@ -454,7 +555,9 @@ useEffect(() => {
           <div className="absolute inset-0 rounded-3xl" style={{ background: "radial-gradient(circle at 50% -20%, rgba(153,69,255,0.2) 0%, transparent 60%)" }} />
           <div className="relative">
             <h2 className="font-black leading-tight mb-6" style={{ fontSize: "clamp(36px, 6vw, 72px)", letterSpacing: "-0.03em" }}>Pronto<br />a lanciare?</h2>
-            <p className="text-lg mb-10 mx-auto" style={{ color: "rgba(255,255,255,0.4)", maxWidth: 400 }}>Connetti Phantom e crea il tuo token in meno di 60 secondi.</p>
+            <p className="text-lg mb-10 mx-auto" style={{ color: "rgba(255,255,255,0.4)", maxWidth: 460 }}>
+              Trova un trend, genera una meme idea con AI e crea il tuo token in meno di 60 secondi.
+            </p>
             <button onClick={() => setShowApp(true)} className="px-12 py-5 rounded-2xl text-lg font-black text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #9945FF, #14F195)", boxShadow: "0 0 70px rgba(153,69,255,0.4)" }}>
               Crea il tuo token
             </button>
@@ -474,17 +577,20 @@ useEffect(() => {
                 <div className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>Non-custodial Token Launcher su Solana</div>
               </div>
             </div>
+
             <div className="flex flex-wrap justify-center gap-8">
               {[["Features", "#features"], ["Come funziona", "#come-funziona"], ["Prezzi", "#prezzi"], ["FAQ", "#faq"], ["Trending", "/trending"], ["Guide", "/guides"], ["AI Meme", "/ai-meme"]].map(([l, h]) => (
                 <a key={l} href={h} className="text-sm transition-colors" style={{ color: "rgba(255,255,255,0.3)" }} onMouseEnter={e => (e.currentTarget.style.color = "white")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>{l}</a>
               ))}
             </div>
+
             <div className="flex items-center gap-6">
               <a href="/privacy" className="text-xs" style={{ color: "rgba(255,255,255,0.22)" }} onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.22)")}>Privacy</a>
               <a href="/terms" className="text-xs" style={{ color: "rgba(255,255,255,0.22)" }} onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.22)")}>Termini</a>
               <a href="mailto:info@solmint.space" className="text-xs" style={{ color: "rgba(255,255,255,0.22)" }} onMouseEnter={e => (e.currentTarget.style.color = "#14F195")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.22)")}>info@solmint.space</a>
             </div>
           </div>
+
           <div className="text-center text-xs pt-8" style={{ color: "rgba(255,255,255,0.1)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
             © 2026 SolMint. Tutti i diritti riservati. Costruito su Solana.
           </div>
