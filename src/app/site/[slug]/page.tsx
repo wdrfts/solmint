@@ -1,8 +1,10 @@
-export default function GeneratedSitePage({
+export default async function GeneratedSitePage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
+
   return (
     <main
       style={{
@@ -15,7 +17,7 @@ export default function GeneratedSitePage({
       }}
     >
       <h1 style={{ fontSize: 48 }}>
-        {params.slug}.solmint.space 🚀
+        {slug}.solmint.space 🚀
       </h1>
     </main>
   );
