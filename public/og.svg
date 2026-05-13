@@ -1,0 +1,33 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#07070F"></rect>
+
+  <circle cx="250" cy="120" r="220" fill="#9945FF" fill-opacity="0.18"></circle>
+  <circle cx="980" cy="520" r="260" fill="#14F195" fill-opacity="0.12"></circle>
+
+  <rect x="80" y="80" width="1040" height="470" rx="40" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)"></rect>
+
+  <text x="100" y="240" fill="white" font-size="78" font-family="Arial, sans-serif" font-weight="800">
+    SolMint Space
+  </text>
+
+  <text x="100" y="330" fill="#B4B4C7" font-size="34" font-family="Arial, sans-serif" font-weight="500">
+    Create Solana SPL Tokens with AI
+  </text>
+
+  <text x="100" y="390" fill="#B4B4C7" font-size="34" font-family="Arial, sans-serif" font-weight="500">
+    Trends · Liquidity · Memecoin Launch Tools
+  </text>
+
+  <rect x="100" y="455" width="250" height="64" rx="20" fill="url(#g)"></rect>
+
+  <text x="145" y="497" fill="white" font-size="28" font-family="Arial, sans-serif" font-weight="700">
+    solmint.space
+  </text>
+
+  <defs>
+    <linearGradient id="g" x1="100" y1="455" x2="350" y2="519">
+      <stop stop-color="#9945FF"></stop>
+      <stop offset="1" stop-color="#14F195"></stop>
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import SiteNavbar from "@/components/SiteNavbar";
+import SiteFooter from "@/components/SiteFooter";
 
 interface Token {
   address: string;
@@ -51,225 +52,191 @@ function TokenCard({
   const isPositive = token.priceChange24h >= 0;
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), index * 60);
+    const timer = setTimeout(() => setVisible(true), index * 45);
     return () => clearTimeout(timer);
   }, [index]);
 
   useEffect(() => {
     if (token.isNew) {
       setHighlight(true);
-      const t = setTimeout(() => setHighlight(false), 3000);
+      const t = setTimeout(() => setHighlight(false), 3800);
       return () => clearTimeout(t);
     }
   }, [token.isNew]);
 
   return (
     <div
-      className={visible ? "animate-token-reveal" : ""}
+  className={`group relative overflow-hidden rounded-[28px] p-5 transition-all duration-500 hover:-translate-y-1 ${
+    highlight ? "token-new" : ""
+  }`}
       style={{
         opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0) scale(1)" : "translateY(16px) scale(0.98)",
         background: highlight
-          ? "linear-gradient(135deg, rgba(153,69,255,0.15), rgba(20,241,149,0.08))"
-          : "rgba(255,255,255,0.03)",
+          ? "linear-gradient(135deg, rgba(153,69,255,0.18), rgba(20,241,149,0.10))"
+          : "rgba(255,255,255,0.035)",
         border: highlight
-          ? "1px solid rgba(153,69,255,0.5)"
-          : "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 20,
-        padding: 20,
-        transition: "all 0.5s",
-        boxShadow: highlight ? "0 0 30px rgba(153,69,255,0.2)" : "none",
+          ? "1px solid rgba(20,241,149,0.45)"
+          : "1px solid rgba(255,255,255,0.08)",
+        boxShadow: highlight
+          ? "0 0 55px rgba(20,241,149,0.20), 0 24px 70px rgba(0,0,0,0.35)"
+          : "0 20px 60px rgba(0,0,0,0.20)",
       }}
     >
       {highlight && (
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-          <span
+        <div className="absolute inset-0 pointer-events-none">
+          <div
+            className="absolute left-0 right-0 top-0 h-[2px]"
             style={{
-              fontSize: 10,
-              fontWeight: 900,
-              padding: "3px 10px",
-              borderRadius: 100,
-              background: "linear-gradient(135deg, #9945FF, #14F195)",
-              color: "white",
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
+              background: "linear-gradient(90deg, transparent, #14F195, #9945FF, transparent)",
+              animation: "scanLine 1.8s ease-in-out infinite",
             }}
-          >
-            NEW
-          </span>
+          />
         </div>
       )}
 
       <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          marginBottom: 12,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ position: "relative", width: 48, height: 48, flexShrink: 0 }}>
-            {token.icon && (
-              <img
-                src={token.icon}
-                alt={token.name}
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  position: "absolute",
-                  inset: 0,
-                  zIndex: 2,
-                }}
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
+        className="absolute -right-20 -top-20 h-40 w-40 rounded-full opacity-0 blur-3xl transition-opacity group-hover:opacity-100"
+        style={{ background: "rgba(153,69,255,0.22)" }}
+      />
+
+      <div className="relative z-10">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative h-14 w-14 shrink-0">
+              <div
+                className="absolute inset-0 rounded-full blur-md"
+                style={{ background: "linear-gradient(135deg, rgba(153,69,255,0.65), rgba(20,241,149,0.35))" }}
               />
-            )}
 
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #9945FF, #14F195)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-                fontWeight: 900,
-                color: "white",
-              }}
-            >
-              {token.symbol?.[0] || "?"}
+              {token.icon && (
+                <img
+                  src={token.icon}
+                  alt={token.name}
+                  className="absolute inset-0 z-20 h-14 w-14 rounded-full object-cover"
+                  onError={e => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              )}
+
+              <div
+                className="absolute inset-0 z-10 flex items-center justify-center rounded-full text-lg font-black text-white"
+                style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}
+              >
+                {token.symbol?.[0] || "?"}
+              </div>
+            </div>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="truncate text-base font-black text-white">
+                  {token.name?.length > 19 ? token.name.slice(0, 19) + "..." : token.name}
+                </h3>
+
+                {highlight && (
+                  <span
+                    className="token-new-badge rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-white"
+                    style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}
+                  >
+                    New
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-1 text-sm font-bold" style={{ color: "rgba(255,255,255,0.38)" }}>
+                ${token.symbol}
+              </p>
             </div>
           </div>
 
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 16, color: "white", marginBottom: 2 }}>
-              {token.name?.length > 18 ? token.name.slice(0, 18) + "..." : token.name}
-            </div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>
-              ${token.symbol}
-            </div>
+          <div className="text-right shrink-0">
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.26)" }}>
+              Market Cap
+            </p>
+            <p className="text-lg font-black" style={{ color: "#14F195" }}>
+              {formatNum(token.marketCap)}
+            </p>
           </div>
         </div>
 
-        <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>
-            Market Cap
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          <div className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <p className="mb-1 text-[10px] font-bold uppercase" style={{ color: "rgba(255,255,255,0.28)" }}>24h</p>
+            <p className="text-sm font-black" style={{ color: isPositive ? "#14F195" : "#ff6b6b" }}>
+              {isPositive ? "+" : ""}
+              {Number(token.priceChange24h || 0).toFixed(1)}%
+            </p>
           </div>
-          <div style={{ fontSize: 18, fontWeight: 900, color: "#14F195" }}>
-            {formatNum(token.marketCap)}
-          </div>
-        </div>
-      </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-        <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 10px" }}>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>24h</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: isPositive ? "#14F195" : "#ff6b6b" }}>
-            {isPositive ? "+" : ""}
-            {Number(token.priceChange24h || 0).toFixed(1)}%
+          <div className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <p className="mb-1 text-[10px] font-bold uppercase" style={{ color: "rgba(255,255,255,0.28)" }}>Volume</p>
+            <p className="text-sm font-black text-white">{formatNum(token.volume24h)}</p>
+          </div>
+
+          <div className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <p className="mb-1 text-[10px] font-bold uppercase" style={{ color: "rgba(255,255,255,0.28)" }}>Età</p>
+            <p className="text-sm font-black text-white">{timeAgo(token.age)}</p>
           </div>
         </div>
 
-        <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 10px" }}>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>Volume</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{formatNum(token.volume24h)}</div>
+        {token.description && (
+          <p className="mb-4 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>
+            {token.description.length > 92 ? token.description.slice(0, 92) + "..." : token.description}
+          </p>
+        )}
+
+        <div className="mb-4 flex items-center gap-2">
+          {token.links
+            ?.filter((l: any) => l.url)
+            .slice(0, 3)
+            .map((link: any, i: number) => (
+              <a
+                key={i}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-8 w-8 items-center justify-center rounded-xl text-xs font-black no-underline transition-all hover:scale-110"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  color: "rgba(255,255,255,0.58)",
+                }}
+              >
+                {link.label === "twitter" ? "𝕏" : link.label === "telegram" ? "✈" : "🌐"}
+              </a>
+            ))}
+
+          <span className="ml-auto text-xs font-semibold" style={{ color: "rgba(255,255,255,0.22)" }}>
+            {token.address.slice(0, 6)}...{token.address.slice(-4)}
+          </span>
         </div>
 
-        <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 10px" }}>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>Età</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{timeAgo(token.age)}</div>
+        <div className="grid grid-cols-2 gap-2">
+          <a
+            href={token.dexUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-2xl py-3 text-center text-sm font-black text-white no-underline transition-all hover:scale-[1.02]"
+            style={{
+              background: "rgba(255,255,255,0.065)",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            DexScreener
+          </a>
+
+          <button
+            onClick={() => onRecreate(token)}
+            className="rounded-2xl border-0 py-3 text-sm font-black text-white transition-all hover:scale-[1.02]"
+            style={{
+              background: "linear-gradient(135deg, #9945FF, #14F195)",
+              boxShadow: "0 16px 35px rgba(153,69,255,0.22)",
+            }}
+          >
+            🤖 Ricrea AI
+          </button>
         </div>
-      </div>
-
-      {token.description && (
-        <p
-          style={{
-            fontSize: 12,
-            color: "rgba(255,255,255,0.35)",
-            lineHeight: 1.5,
-            marginBottom: 12,
-          }}
-        >
-          {token.description.length > 80 ? token.description.slice(0, 80) + "..." : token.description}
-        </p>
-      )}
-
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-        {token.links
-          ?.filter((l: any) => l.url)
-          .slice(0, 3)
-          .map((link: any, i: number) => (
-            <a
-              key={i}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 8,
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                color: "rgba(255,255,255,0.5)",
-                textDecoration: "none",
-              }}
-            >
-              {link.label === "twitter" ? "𝕏" : link.label === "telegram" ? "✈" : "🌐"}
-            </a>
-          ))}
-
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginLeft: "auto" }}>
-          {token.address.slice(0, 6)}...{token.address.slice(-4)}
-        </span>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        <a
-          href={token.dexUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "block",
-            width: "100%",
-            padding: "12px 0",
-            borderRadius: 14,
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "white",
-            fontSize: 13,
-            fontWeight: 800,
-            textAlign: "center",
-            textDecoration: "none",
-          }}
-        >
-          DexScreener
-        </a>
-
-        <button
-          onClick={() => onRecreate(token)}
-          style={{
-            width: "100%",
-            padding: "12px 0",
-            borderRadius: 14,
-            border: "none",
-            background: "linear-gradient(135deg, #9945FF, #14F195)",
-            color: "white",
-            fontSize: 13,
-            fontWeight: 900,
-            cursor: "pointer",
-          }}
-        >
-          🤖 Ricrea AI
-        </button>
       </div>
     </div>
   );
@@ -278,16 +245,15 @@ function TokenCard({
 function SkeletonCard() {
   return (
     <div
+      className="rounded-[28px] p-5"
       style={{
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 20,
-        padding: 20,
+        background: "rgba(255,255,255,0.035)",
+        border: "1px solid rgba(255,255,255,0.08)",
       }}
     >
-      <div style={{ height: 48, marginBottom: 16, background: "rgba(255,255,255,0.06)", borderRadius: 12 }} />
-      <div style={{ height: 50, marginBottom: 12, background: "rgba(255,255,255,0.06)", borderRadius: 12 }} />
-      <div style={{ height: 42, background: "rgba(255,255,255,0.06)", borderRadius: 14 }} />
+      <div className="mb-4 h-14 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)" }} />
+      <div className="mb-3 h-20 rounded-2xl" style={{ background: "rgba(255,255,255,0.045)" }} />
+      <div className="h-12 rounded-2xl" style={{ background: "rgba(255,255,255,0.045)" }} />
     </div>
   );
 }
@@ -310,7 +276,7 @@ export default function TrendingPage() {
       const data = await res.json();
       const newTokens: Token[] = data.tokens || [];
 
-      setTokens((prev) => {
+      setTokens(prev => {
         const prevAddresses = new Set(prev.map((t: Token) => t.address));
         return newTokens.map((t: Token) => ({
           ...t,
@@ -320,7 +286,6 @@ export default function TrendingPage() {
 
       setLastUpdate(new Date());
     } catch {
-      // fail silent
     } finally {
       setLoading(false);
     }
@@ -332,7 +297,7 @@ export default function TrendingPage() {
 
   useEffect(() => {
     if (!autoRefresh) return;
-    const interval = setInterval(fetchTokens, 10000);
+    const interval = setInterval(fetchTokens, 5000);
     return () => clearInterval(interval);
   }, [autoRefresh, fetchTokens]);
 
@@ -391,297 +356,254 @@ export default function TrendingPage() {
   });
 
   return (
-    <main style={{ minHeight: "100vh", background: "#07070f", color: "white", overflowX: "hidden" }}>
-  <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background:
-          "radial-gradient(circle at 50% 0%, rgba(153,69,255,0.16) 0%, transparent 38%), radial-gradient(circle at 85% 28%, rgba(20,241,149,0.10) 0%, transparent 34%), radial-gradient(circle at 15% 45%, rgba(153,69,255,0.10) 0%, transparent 32%), linear-gradient(180deg, #07070f 0%, #090914 45%, #050509 100%)",
-      }}
-    />
+    <main className="min-h-screen overflow-x-hidden" style={{ background: "#07070f", color: "white" }}>
+      <SiteNavbar />
 
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        backgroundImage:
-          "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
-        backgroundSize: "72px 72px",
-        maskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
-        WebkitMaskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
-      }}
-    />
+      <style jsx global>{`
+  @keyframes scanLine {
+    0% {
+      transform: translateX(-120%);
+      opacity: 0;
+    }
 
-    <div
-      style={{
-        position: "absolute",
-        borderRadius: "50%",
-        width: 900,
-        height: 900,
-        top: -360,
-        left: "50%",
-        transform: "translateX(-50%)",
-        background:
-          "radial-gradient(circle, rgba(153,69,255,0.18) 0%, rgba(153,69,255,0.055) 32%, transparent 70%)",
-        filter: "blur(70px)",
-      }}
-    />
+    30% {
+      opacity: 1;
+    }
 
-    <div
-      style={{
-        position: "absolute",
-        borderRadius: "50%",
-        width: 620,
-        height: 620,
-        bottom: "8%",
-        right: "-190px",
-        background:
-          "radial-gradient(circle, rgba(20,241,149,0.12) 0%, rgba(20,241,149,0.035) 38%, transparent 72%)",
-        filter: "blur(90px)",
-      }}
-    />
+    100% {
+      transform: translateX(120%);
+      opacity: 0;
+    }
+  }
 
-    <div
-      style={{
-        position: "absolute",
-        borderRadius: "50%",
-        width: 460,
-        height: 460,
-        top: "34%",
-        left: "-170px",
-        background:
-          "radial-gradient(circle, rgba(153,69,255,0.12) 0%, rgba(153,69,255,0.03) 40%, transparent 72%)",
-        filter: "blur(80px)",
-      }}
-    />
-  </div>
+  @keyframes tokenPop {
+    0% {
+      opacity: 0;
+      transform: translateY(40px) scale(0.92);
+      filter: blur(10px);
+    }
 
-      <nav
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          padding: "16px 24px",
-          background: "rgba(7,7,15,0.95)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
+    40% {
+      opacity: 1;
+      transform: translateY(-6px) scale(1.02);
+      filter: blur(0px);
+    }
+
+    60% {
+      transform: translateY(2px) scale(0.995);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0px) scale(1);
+      filter: blur(0px);
+    }
+  }
+
+  @keyframes newGlow {
+    0% {
+      box-shadow:
+        0 0 0 rgba(20,241,149,0),
+        0 0 0 rgba(153,69,255,0);
+    }
+
+    50% {
+      box-shadow:
+        0 0 40px rgba(20,241,149,0.28),
+        0 0 80px rgba(153,69,255,0.22);
+    }
+
+    100% {
+      box-shadow:
+        0 0 0 rgba(20,241,149,0),
+        0 0 0 rgba(153,69,255,0);
+    }
+  }
+
+  @keyframes badgePulse {
+    0% {
+      transform: scale(0.95);
+      opacity: 0.7;
+    }
+
+    50% {
+      transform: scale(1.08);
+      opacity: 1;
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .token-new {
+    animation:
+      tokenPop 0.8s cubic-bezier(.22,1,.36,1),
+      newGlow 2.5s ease-in-out;
+  }
+
+  .token-new-badge {
+    animation: badgePulse 1s ease-in-out infinite;
+  }
+`}</style>
+
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
         <div
+          className="absolute inset-0"
           style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            background:
+              "radial-gradient(circle at 50% 0%, rgba(153,69,255,0.16) 0%, transparent 38%), radial-gradient(circle at 85% 28%, rgba(20,241,149,0.10) 0%, transparent 34%), radial-gradient(circle at 15% 45%, rgba(153,69,255,0.10) 0%, transparent 32%), linear-gradient(180deg, #07070f 0%, #090914 45%, #050509 100%)",
           }}
-        >
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="9" fill="url(#tLg)" />
-              <circle cx="16" cy="16" r="6" stroke="white" strokeWidth="2" fill="none" />
-              <path d="M16 10V8M16 24v-2M10 16H8M24 16h-2" stroke="white" strokeWidth="2" strokeLinecap="round" />
-              <defs>
-                <linearGradient id="tLg" x1="0" y1="0" x2="32" y2="32">
-                  <stop stopColor="#9945FF" />
-                  <stop offset="1" stopColor="#14F195" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <span style={{ fontWeight: 900, fontSize: 18, color: "white" }}>SolMint</span>
-          </Link>
+        />
 
-          <div style={{ display: "flex", gap: 24 }}>
-            <Link href="/" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>
-              Home
-            </Link>
-            <Link href="/trending" style={{ color: "white", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>
-              Trending
-            </Link>
-            <Link href="/guides" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>
-              Guide
-            </Link>
-            <Link href="/ai-meme" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>
-              AI Meme
-            </Link>
-          </div>
-        </div>
-      </nav>
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+            maskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
+            WebkitMaskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
+          }}
+        />
+      </div>
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 24px", position: "relative", zIndex: 1 }}>
-        <div style={{ marginBottom: 40 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+      <section className="relative z-10 px-4 sm:px-6 pt-36 pb-10">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 text-center">
             <div
+              className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest"
               style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: "#14F195",
-                boxShadow: "0 0 12px #14F195",
-              }}
-            />
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
+                background: "rgba(20,241,149,0.08)",
+                border: "1px solid rgba(20,241,149,0.18)",
                 color: "#14F195",
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
               }}
             >
-              Live
-            </span>
+              <span
+                className="h-2 w-2 rounded-full animate-pulse"
+                style={{ background: "#14F195", boxShadow: "0 0 10px #14F195" }}
+              />
+              Live Solana Radar
+              {lastUpdate && (
+                <span className="normal-case tracking-normal font-semibold" style={{ color: "rgba(255,255,255,0.35)" }}>
+                  · {lastUpdate.toLocaleTimeString("it-IT")}
+                </span>
+              )}
+            </div>
 
-            {lastUpdate && (
-              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>
-                Aggiornato {lastUpdate.toLocaleTimeString("it-IT")}
-              </span>
-            )}
-          </div>
-
-          <h1
-            style={{
-              fontSize: "clamp(32px, 6vw, 64px)",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
-              marginBottom: 12,
-            }}
-          >
-            Trending
-            <span
+            <h1
+              className="mx-auto mb-5 max-w-4xl font-black leading-[0.95]"
               style={{
-                background: "linear-gradient(90deg, #9945FF, #14F195)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                fontSize: "clamp(44px, 8vw, 86px)",
+                letterSpacing: "-0.055em",
               }}
             >
-              {" "}
-              Solana
-            </span>
-          </h1>
-
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 16 }}>
-            Token Solana live da DexScreener. Clicca “Ricrea AI” per creare una variante virale.
-          </p>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 16,
-            marginBottom: 32,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              gap: 4,
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 14,
-              padding: 4,
-            }}
-          >
-            {(["trending", "gainers", "new"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
+              Token che stanno
+              <br />
+              <span
                 style={{
-                  padding: "8px 20px",
-                  borderRadius: 10,
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  background: filter === f ? "linear-gradient(135deg, #9945FF, #14F195)" : "transparent",
-                  color: filter === f ? "white" : "rgba(255,255,255,0.4)",
+                  background: "linear-gradient(90deg, #9945FF, #14F195)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
                 }}
               >
-                {f === "trending" ? "🔥 Trending" : f === "gainers" ? "📈 Gainers" : "🆕 New"}
-              </button>
-            ))}
+                pompando ora.
+              </span>
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-base sm:text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.43)" }}>
+              Scopri i token Solana live da DexScreener, studia narrativa e momentum, poi usa AI per ricreare una variante originale.
+            </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>Auto-refresh</span>
-
-            <button
-              onClick={() => setAutoRefresh(!autoRefresh)}
+          <div
+            className="mb-8 flex flex-col gap-4 rounded-[28px] p-4 sm:flex-row sm:items-center sm:justify-between"
+            style={{
+              background: "rgba(255,255,255,0.035)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <div
+              className="grid grid-cols-3 gap-1 rounded-2xl p-1"
               style={{
-                width: 44,
-                height: 24,
-                borderRadius: 12,
-                border: "none",
-                cursor: "pointer",
-                background: autoRefresh ? "#9945FF" : "rgba(255,255,255,0.1)",
-                position: "relative",
+                background: "rgba(255,255,255,0.045)",
+                border: "1px solid rgba(255,255,255,0.07)",
               }}
             >
-              <div
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: "50%",
-                  background: "white",
-                  position: "absolute",
-                  top: 3,
-                  left: autoRefresh ? 23 : 3,
-                  transition: "left 0.2s",
-                }}
-              />
-            </button>
-
-            <button
-              onClick={fetchTokens}
-              style={{
-                padding: "6px 14px",
-                borderRadius: 10,
-                border: "1px solid rgba(255,255,255,0.1)",
-                background: "rgba(255,255,255,0.04)",
-                color: "rgba(255,255,255,0.6)",
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              Aggiorna
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
-          {loading
-            ? Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={i} />)
-            : filtered.map((token, i) => (
-                <TokenCard key={token.address} token={token} index={i} onRecreate={recreateWithAI} />
+              {(["trending", "gainers", "new"] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className="rounded-xl px-3 py-3 text-xs sm:text-sm font-black transition-all"
+                  style={{
+                    border: "none",
+                    cursor: "pointer",
+                    background: filter === f ? "linear-gradient(135deg, #9945FF, #14F195)" : "transparent",
+                    color: filter === f ? "white" : "rgba(255,255,255,0.42)",
+                  }}
+                >
+                  {f === "trending" ? "🔥 Trending" : f === "gainers" ? "📈 Gainers" : "🆕 New"}
+                </button>
               ))}
-        </div>
+            </div>
 
-        {!loading && filtered.length === 0 && (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "rgba(255,255,255,0.3)" }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-            <p>Nessun token trovato. Riprova tra qualche secondo.</p>
+            <div className="flex items-center justify-between gap-3 sm:justify-end">
+              <span className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.42)" }}>
+                Auto-refresh
+              </span>
+
+              <button
+                onClick={() => setAutoRefresh(!autoRefresh)}
+                className="relative h-7 w-12 rounded-full border-0 transition-all"
+                style={{
+                  cursor: "pointer",
+                  background: autoRefresh ? "linear-gradient(135deg, #9945FF, #14F195)" : "rgba(255,255,255,0.1)",
+                }}
+              >
+                <span
+                  className="absolute top-1 h-5 w-5 rounded-full bg-white transition-all"
+                  style={{ left: autoRefresh ? 25 : 4 }}
+                />
+              </button>
+
+              <button
+                onClick={fetchTokens}
+                className="rounded-2xl px-4 py-2 text-sm font-black transition-all hover:scale-105"
+                style={{
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.055)",
+                  color: "rgba(255,255,255,0.7)",
+                }}
+              >
+                Aggiorna
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {loading
+              ? Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={i} />)
+              : filtered.map((token, i) => (
+                  <TokenCard key={token.address} token={token} index={i} onRecreate={recreateWithAI} />
+                ))}
+          </div>
+
+          {!loading && filtered.length === 0 && (
+            <div className="py-24 text-center" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <div className="mb-4 text-5xl">🔍</div>
+              <p>Nessun token trovato. Riprova tra qualche secondo.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {selectedToken && (
         <div
+          className="fixed inset-0 z-[999] flex items-center justify-center p-4"
           style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 999,
             background: "rgba(0,0,0,0.72)",
             backdropFilter: "blur(12px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 24,
           }}
           onClick={() => {
             if (!aiLoading) {
@@ -692,33 +614,20 @@ export default function TrendingPage() {
           }}
         >
           <div
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
+            className="w-full max-w-2xl rounded-[30px] p-5 sm:p-7"
             style={{
-              width: "100%",
-              maxWidth: 620,
               background: "#0b0b16",
               border: "1px solid rgba(153,69,255,0.3)",
-              borderRadius: 26,
-              padding: 28,
-              boxShadow: "0 0 80px rgba(153,69,255,0.25)",
+              boxShadow: "0 0 90px rgba(153,69,255,0.28)",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 16, marginBottom: 22 }}>
+            <div className="mb-6 flex justify-between gap-4">
               <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 900,
-                    color: "#14F195",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.1em",
-                    marginBottom: 6,
-                  }}
-                >
+                <p className="mb-2 text-xs font-black uppercase tracking-widest" style={{ color: "#14F195" }}>
                   Ricrea con AI
-                </div>
-
-                <h2 style={{ fontSize: 24, fontWeight: 900, color: "white" }}>
+                </p>
+                <h2 className="text-2xl sm:text-3xl font-black text-white">
                   Ispirato a {selectedToken.name}
                 </h2>
               </div>
@@ -730,15 +639,11 @@ export default function TrendingPage() {
                   setAiResult(null);
                   setAiError("");
                 }}
+                className="h-10 w-10 rounded-2xl text-2xl text-white"
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 12,
                   border: "1px solid rgba(255,255,255,0.1)",
                   background: "rgba(255,255,255,0.04)",
-                  color: "white",
                   cursor: aiLoading ? "not-allowed" : "pointer",
-                  fontSize: 22,
                 }}
               >
                 ×
@@ -746,12 +651,10 @@ export default function TrendingPage() {
             </div>
 
             {aiLoading && (
-              <div style={{ textAlign: "center", padding: "50px 0" }}>
-                <div style={{ fontSize: 42, marginBottom: 16 }}>🤖</div>
-                <p style={{ color: "white", fontWeight: 800, marginBottom: 8 }}>
-                  Analizzo trend, metriche e viralità...
-                </p>
-                <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13 }}>
+              <div className="py-14 text-center">
+                <div className="mb-4 text-5xl">🤖</div>
+                <p className="mb-2 font-black text-white">Analizzo trend, metriche e viralità...</p>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
                   Creo una variante originale ispirata al token.
                 </p>
               </div>
@@ -759,13 +662,11 @@ export default function TrendingPage() {
 
             {aiError && (
               <div
+                className="rounded-2xl p-4 text-sm"
                 style={{
-                  padding: 16,
-                  borderRadius: 14,
                   background: "rgba(255,60,60,0.08)",
                   border: "1px solid rgba(255,60,60,0.2)",
                   color: "#ff6b6b",
-                  fontSize: 13,
                 }}
               >
                 {aiError}
@@ -774,47 +675,29 @@ export default function TrendingPage() {
 
             {aiResult && !aiLoading && (
               <div>
-                <div style={{ display: "flex", gap: 18, marginBottom: 20, flexWrap: "wrap" }}>
+                <div className="mb-5 flex flex-wrap gap-5">
                   {aiResult.imageBase64 ? (
                     <img
                       src={aiResult.imageBase64}
                       alt={aiResult.name}
-                      style={{
-                        width: 96,
-                        height: 96,
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        border: "3px solid rgba(153,69,255,0.4)",
-                      }}
+                      className="h-24 w-24 rounded-full object-cover"
+                      style={{ border: "3px solid rgba(153,69,255,0.4)" }}
                     />
                   ) : (
                     <div
-                      style={{
-                        width: 96,
-                        height: 96,
-                        borderRadius: "50%",
-                        background: "linear-gradient(135deg, #9945FF, #14F195)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 34,
-                        fontWeight: 900,
-                      }}
+                      className="flex h-24 w-24 items-center justify-center rounded-full text-4xl font-black"
+                      style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}
                     >
                       {aiResult.symbol?.[0] || "?"}
                     </div>
                   )}
 
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: 28, fontWeight: 900, color: "white", marginBottom: 4 }}>
-                      {aiResult.name}
-                    </h3>
-
-                    <div style={{ color: "#9945FF", fontWeight: 900, marginBottom: 10 }}>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="mb-1 text-3xl font-black text-white">{aiResult.name}</h3>
+                    <p className="mb-3 font-black" style={{ color: "#9945FF" }}>
                       ${aiResult.symbol}
-                    </div>
-
-                    <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, lineHeight: 1.6 }}>
+                    </p>
+                    <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
                       {aiResult.description}
                     </p>
                   </div>
@@ -822,27 +705,16 @@ export default function TrendingPage() {
 
                 {(aiResult.why || aiResult.twist) && (
                   <div
+                    className="mb-4 rounded-2xl p-4"
                     style={{
-                      padding: 16,
-                      borderRadius: 16,
                       background: "rgba(20,241,149,0.05)",
                       border: "1px solid rgba(20,241,149,0.15)",
-                      marginBottom: 14,
                     }}
                   >
-                    <div
-                      style={{
-                        color: "#14F195",
-                        fontSize: 11,
-                        fontWeight: 900,
-                        textTransform: "uppercase",
-                        marginBottom: 6,
-                      }}
-                    >
+                    <p className="mb-2 text-xs font-black uppercase tracking-widest" style={{ color: "#14F195" }}>
                       Perché può diventare virale
-                    </div>
-
-                    <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, lineHeight: 1.6 }}>
+                    </p>
+                    <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
                       {aiResult.why || aiResult.twist}
                     </p>
                   </div>
@@ -850,27 +722,16 @@ export default function TrendingPage() {
 
                 {aiResult.strategy && (
                   <div
+                    className="mb-6 rounded-2xl p-4"
                     style={{
-                      padding: 16,
-                      borderRadius: 16,
                       background: "rgba(153,69,255,0.05)",
                       border: "1px solid rgba(153,69,255,0.15)",
-                      marginBottom: 22,
                     }}
                   >
-                    <div
-                      style={{
-                        color: "#9945FF",
-                        fontSize: 11,
-                        fontWeight: 900,
-                        textTransform: "uppercase",
-                        marginBottom: 6,
-                      }}
-                    >
+                    <p className="mb-2 text-xs font-black uppercase tracking-widest" style={{ color: "#9945FF" }}>
                       Strategia
-                    </div>
-
-                    <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, lineHeight: 1.6 }}>
+                    </p>
+                    <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
                       {aiResult.strategy}
                     </p>
                   </div>
@@ -878,16 +739,8 @@ export default function TrendingPage() {
 
                 <button
                   onClick={useAIToken}
-                  style={{
-                    width: "100%",
-                    padding: 16,
-                    borderRadius: 16,
-                    border: "none",
-                    background: "linear-gradient(135deg, #9945FF, #14F195)",
-                    color: "white",
-                    fontWeight: 900,
-                    cursor: "pointer",
-                  }}
+                  className="w-full rounded-2xl border-0 p-4 font-black text-white transition-all hover:scale-[1.01]"
+                  style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}
                 >
                   Usa questo token — Apri SolMint
                 </button>
@@ -896,6 +749,8 @@ export default function TrendingPage() {
           </div>
         </div>
       )}
+
+      <SiteFooter />
     </main>
   );
 }

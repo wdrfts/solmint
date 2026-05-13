@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import SiteNavbar from "@/components/SiteNavbar";
+import SiteFooter from "@/components/SiteFooter";
 
 const NICHES = [
   "Animali",
@@ -22,7 +23,7 @@ const TONES = [
   "Wholesome",
   "Ironico",
   "Epico",
-  "Cringe (in senso buono)",
+  "Cringe",
 ];
 
 const MARKETS = ["Globale", "Italiano", "Americano", "Asiatico"];
@@ -38,187 +39,164 @@ interface AIResult {
   twist?: string;
 }
 
-function ResultCard({
-  result,
-  onUse,
+function PillButton({
+  active,
+  children,
+  onClick,
 }: {
-  result: AIResult;
-  onUse: () => void;
+  active: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
 }) {
   return (
-    <div
+    <button
+      onClick={onClick}
+      className="rounded-full px-4 py-2 text-sm font-bold transition-all hover:scale-105"
       style={{
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(153,69,255,0.3)",
-        borderRadius: 24,
-        padding: 32,
-        boxShadow: "0 0 60px rgba(153,69,255,0.1)",
+        border: active ? "1px solid rgba(20,241,149,0.35)" : "1px solid rgba(255,255,255,0.1)",
+        background: active
+          ? "linear-gradient(135deg, rgba(153,69,255,0.95), rgba(20,241,149,0.95))"
+          : "rgba(255,255,255,0.045)",
+        color: active ? "white" : "rgba(255,255,255,0.62)",
+        boxShadow: active ? "0 14px 35px rgba(153,69,255,0.22)" : "none",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ResultCard({ result, onUse }: { result: AIResult; onUse: () => void }) {
+  const copyTicker = async () => {
+    await navigator.clipboard.writeText(`$${result.symbol}`);
+  };
+
+  return (
+    <div
+      className="relative overflow-hidden rounded-[34px] p-6 sm:p-8"
+      style={{
+        background: "linear-gradient(135deg, rgba(153,69,255,0.12), rgba(20,241,149,0.055))",
+        border: "1px solid rgba(153,69,255,0.28)",
+        boxShadow: "0 0 80px rgba(153,69,255,0.15)",
       }}
     >
       <div
-        style={{
-          display: "flex",
-          gap: 24,
-          marginBottom: 28,
-          flexWrap: "wrap",
-        }}
-      >
-        {result.imageBase64 ? (
-          <img
-            src={result.imageBase64}
-            alt={result.name}
+        className="absolute -right-24 -top-24 h-64 w-64 rounded-full blur-3xl"
+        style={{ background: "rgba(153,69,255,0.22)" }}
+      />
+
+      <div className="relative z-10">
+        <div className="mb-7 flex flex-col gap-6 sm:flex-row">
+          {result.imageBase64 ? (
+            <img
+              src={result.imageBase64}
+              alt={result.name}
+              className="h-36 w-36 rounded-[32px] object-cover"
+              style={{
+                border: "3px solid rgba(153,69,255,0.4)",
+                boxShadow: "0 22px 60px rgba(0,0,0,0.35)",
+              }}
+            />
+          ) : (
+            <div
+              className="flex h-36 w-36 items-center justify-center rounded-[32px] text-5xl font-black text-white"
+              style={{
+                background: "linear-gradient(135deg, #9945FF, #14F195)",
+                boxShadow: "0 22px 60px rgba(153,69,255,0.30)",
+              }}
+            >
+              {result.symbol?.[0] || "?"}
+            </div>
+          )}
+
+          <div className="min-w-0 flex-1">
+            <p className="mb-2 text-xs font-black uppercase tracking-widest" style={{ color: "#14F195" }}>
+              AI Token Concept
+            </p>
+
+            <h2 className="mb-2 text-4xl font-black leading-tight text-white">
+              {result.name}
+            </h2>
+
+            <button
+              onClick={copyTicker}
+              className="mb-4 rounded-full px-4 py-2 text-sm font-black transition-all hover:scale-105"
+              style={{
+                color: "#9945FF",
+                background: "rgba(153,69,255,0.09)",
+                border: "1px solid rgba(153,69,255,0.2)",
+              }}
+            >
+              ${result.symbol} · copia ticker
+            </button>
+
+            <p className="text-sm sm:text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.62)" }}>
+              {result.description}
+            </p>
+          </div>
+        </div>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-2">
+          {(result.why || result.twist) && (
+            <div
+              className="rounded-3xl p-5"
+              style={{
+                background: "rgba(20,241,149,0.055)",
+                border: "1px solid rgba(20,241,149,0.16)",
+              }}
+            >
+              <p className="mb-3 text-xs font-black uppercase tracking-widest" style={{ color: "#14F195" }}>
+                Viral angle
+              </p>
+              <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.62)" }}>
+                {result.why || result.twist}
+              </p>
+            </div>
+          )}
+
+          {result.strategy && (
+            <div
+              className="rounded-3xl p-5"
+              style={{
+                background: "rgba(153,69,255,0.06)",
+                border: "1px solid rgba(153,69,255,0.18)",
+              }}
+            >
+              <p className="mb-3 text-xs font-black uppercase tracking-widest" style={{ color: "#9945FF" }}>
+                Launch strategy
+              </p>
+              <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.62)" }}>
+                {result.strategy}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            onClick={onUse}
+            className="rounded-2xl border-0 p-4 font-black text-white transition-all hover:scale-[1.02]"
             style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "3px solid rgba(153,69,255,0.4)",
-              flexShrink: 0,
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
               background: "linear-gradient(135deg, #9945FF, #14F195)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 40,
-              fontWeight: 900,
-              color: "white",
-              flexShrink: 0,
+              boxShadow: "0 20px 50px rgba(153,69,255,0.28)",
             }}
           >
-            {result.symbol?.[0] || "?"}
-          </div>
-        )}
+            Usa questo token — Apri SolMint
+          </button>
 
-        <div style={{ flex: 1 }}>
-          <div
+          <a
+            href="/trending"
+            className="rounded-2xl p-4 text-center font-black no-underline transition-all hover:scale-[1.02]"
             style={{
-              fontSize: 32,
-              fontWeight: 900,
-              color: "white",
-              marginBottom: 4,
-              letterSpacing: "-0.02em",
+              color: "rgba(255,255,255,0.75)",
+              background: "rgba(255,255,255,0.055)",
+              border: "1px solid rgba(255,255,255,0.10)",
             }}
           >
-            {result.name}
-          </div>
-
-          <div
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              color: "#9945FF",
-              marginBottom: 12,
-            }}
-          >
-            ${result.symbol}
-          </div>
-
-          <p
-            style={{
-              fontSize: 15,
-              color: "rgba(255,255,255,0.65)",
-              lineHeight: 1.7,
-            }}
-          >
-            {result.description}
-          </p>
+            Torna ai trend
+          </a>
         </div>
       </div>
-
-      {(result.why || result.twist) && (
-        <div
-          style={{
-            padding: "16px 20px",
-            background: "rgba(20,241,149,0.05)",
-            border: "1px solid rgba(20,241,149,0.15)",
-            borderRadius: 16,
-            marginBottom: 16,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: "#14F195",
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              marginBottom: 6,
-            }}
-          >
-            {result.why ? "Perché può diventare virale" : "Il twist unico"}
-          </div>
-
-          <p
-            style={{
-              fontSize: 14,
-              color: "rgba(255,255,255,0.6)",
-              lineHeight: 1.6,
-            }}
-          >
-            {result.why || result.twist}
-          </p>
-        </div>
-      )}
-
-      {result.strategy && (
-        <div
-          style={{
-            padding: "16px 20px",
-            background: "rgba(153,69,255,0.05)",
-            border: "1px solid rgba(153,69,255,0.15)",
-            borderRadius: 16,
-            marginBottom: 24,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: "#9945FF",
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              marginBottom: 6,
-            }}
-          >
-            Strategia di lancio
-          </div>
-
-          <p
-            style={{
-              fontSize: 14,
-              color: "rgba(255,255,255,0.6)",
-              lineHeight: 1.6,
-            }}
-          >
-            {result.strategy}
-          </p>
-        </div>
-      )}
-
-      <button
-        onClick={onUse}
-        style={{
-          width: "100%",
-          padding: "18px",
-          borderRadius: 16,
-          border: "none",
-          background: "linear-gradient(135deg, #9945FF, #14F195)",
-          color: "white",
-          fontSize: 15,
-          fontWeight: 800,
-          cursor: "pointer",
-          boxShadow: "0 0 40px rgba(153,69,255,0.3)",
-        }}
-      >
-        Usa questo token — Apri SolMint
-      </button>
     </div>
   );
 }
@@ -243,10 +221,10 @@ export default function AIMeme() {
 
   const msgs = [
     "Analizzo i trend attuali...",
-    "Cerco l'idea perfetta...",
-    "Scrivo la descrizione...",
-    "Genero il logo con AI...",
-    "Quasi pronto...",
+    "Studio narrativa e momentum...",
+    "Creo nome e ticker...",
+    "Genero il logo AI...",
+    "Preparo la strategia...",
   ];
 
   const isDisabled =
@@ -268,7 +246,7 @@ export default function AIMeme() {
     const msgInterval = setInterval(() => {
       i = (i + 1) % msgs.length;
       setLoadingMsg(msgs[i]);
-    }, 4000);
+    }, 3500);
 
     try {
       const res = await fetch("/api/ai", {
@@ -298,633 +276,292 @@ export default function AIMeme() {
   };
 
   const useToken = () => {
-  if (!result) return;
+    if (!result) return;
 
-  sessionStorage.setItem(
-    "aiTokenDraft",
-    JSON.stringify({
-      name: result.name || "",
-      symbol: result.symbol || "",
-      description: result.description || "",
-      imageBase64: result.imageBase64 || null,
-    })
-  );
+    sessionStorage.setItem(
+      "aiTokenDraft",
+      JSON.stringify({
+        name: result.name || "",
+        symbol: result.symbol || "",
+        description: result.description || "",
+        imageBase64: result.imageBase64 || null,
+      })
+    );
 
-  window.location.href = "/?app=true";
-};
-
-  const s = {
-    card: {
-      background: "rgba(255,255,255,0.03)",
-      border: "1px solid rgba(255,255,255,0.07)",
-      borderRadius: 24,
-      padding: 32,
-    } as React.CSSProperties,
+    window.location.href = "/?app=true";
   };
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
-    <main
-  style={{
-    minHeight: "100vh",
-    background: "#07070f",
-    color: "white",
-    overflowX: "hidden",
-  }}
->
-  <div
-    style={{
-      position: "fixed",
-      inset: 0,
-      pointerEvents: "none",
-      zIndex: 0,
-      overflow: "hidden",
-    }}
-  >
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background:
-          "radial-gradient(circle at 50% 0%, rgba(153,69,255,0.16) 0%, transparent 38%), radial-gradient(circle at 85% 28%, rgba(20,241,149,0.10) 0%, transparent 34%), radial-gradient(circle at 15% 45%, rgba(153,69,255,0.10) 0%, transparent 32%), linear-gradient(180deg, #07070f 0%, #090914 45%, #050509 100%)",
-      }}
-    />
+    <main className="min-h-screen overflow-x-hidden" style={{ background: "#07070f", color: "white" }}>
+      <SiteNavbar />
 
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        backgroundImage:
-          "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
-        backgroundSize: "72px 72px",
-        maskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
-        WebkitMaskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
-      }}
-    />
-
-    <div
-      style={{
-        position: "absolute",
-        borderRadius: "50%",
-        width: 900,
-        height: 900,
-        top: -360,
-        left: "50%",
-        transform: "translateX(-50%)",
-        background:
-          "radial-gradient(circle, rgba(153,69,255,0.18) 0%, rgba(153,69,255,0.055) 32%, transparent 70%)",
-        filter: "blur(70px)",
-      }}
-    />
-
-    <div
-      style={{
-        position: "absolute",
-        borderRadius: "50%",
-        width: 620,
-        height: 620,
-        bottom: "8%",
-        right: "-190px",
-        background:
-          "radial-gradient(circle, rgba(20,241,149,0.12) 0%, rgba(20,241,149,0.035) 38%, transparent 72%)",
-        filter: "blur(90px)",
-      }}
-    />
-
-    <div
-      style={{
-        position: "absolute",
-        borderRadius: "50%",
-        width: 460,
-        height: 460,
-        top: "34%",
-        left: "-170px",
-        background:
-          "radial-gradient(circle, rgba(153,69,255,0.12) 0%, rgba(153,69,255,0.03) 40%, transparent 72%)",
-        filter: "blur(80px)",
-      }}
-    />
-  </div>
-
-      <nav
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          padding: "16px 24px",
-          background: "rgba(7,7,15,0.96)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
         <div
+          className="absolute inset-0"
           style={{
-            maxWidth: 800,
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            background:
+              "radial-gradient(circle at 50% 0%, rgba(153,69,255,0.16) 0%, transparent 38%), radial-gradient(circle at 85% 28%, rgba(20,241,149,0.10) 0%, transparent 34%), radial-gradient(circle at 15% 45%, rgba(153,69,255,0.10) 0%, transparent 32%), linear-gradient(180deg, #07070f 0%, #090914 45%, #050509 100%)",
           }}
-        >
-          <Link
-            href="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              textDecoration: "none",
-            }}
-          >
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="9" fill="url(#aiLg)" />
-              <circle
-                cx="16"
-                cy="16"
-                r="6"
-                stroke="white"
-                strokeWidth="2"
-                fill="none"
-              />
-              <path
-                d="M16 10V8M16 24v-2M10 16H8M24 16h-2"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <defs>
-                <linearGradient id="aiLg" x1="0" y1="0" x2="32" y2="32">
-                  <stop stopColor="#9945FF" />
-                  <stop offset="1" stopColor="#14F195" />
-                </linearGradient>
-              </defs>
-            </svg>
+        />
 
-            <span
-              style={{
-                fontWeight: 900,
-                fontSize: 18,
-                color: "white",
-              }}
-            >
-              SolMint
-            </span>
-          </Link>
-
-          <div style={{ display: "flex", gap: 20 }}>
-            <Link
-              href="/"
-              style={{
-                color: "rgba(255,255,255,0.4)",
-                textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
-              Home
-            </Link>
-
-            <Link
-              href="/trending"
-              style={{
-                color: "rgba(255,255,255,0.4)",
-                textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
-              Trending
-            </Link>
-
-            <Link
-              href="/guides"
-              style={{
-                color: "rgba(255,255,255,0.4)",
-                textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
-              Guide
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <div
-        style={{
-          maxWidth: 680,
-          margin: "0 auto",
-          padding: "56px 24px",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
         <div
+          className="absolute inset-0"
           style={{
-            textAlign: "center",
-            marginBottom: 48,
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+            maskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
+            WebkitMaskImage: "radial-gradient(circle at center, black 0%, transparent 72%)",
           }}
-        >
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🤖</div>
-
-          <p
-            style={{
-              fontSize: 11,
-              fontWeight: 800,
-              color: "#9945FF",
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-              marginBottom: 12,
-            }}
-          >
-            AI Meme Creator
-          </p>
-
-          <h1
-            style={{
-              fontSize: "clamp(32px, 5vw, 56px)",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
-              marginBottom: 12,
-            }}
-          >
-            Crea il tuo
-            <span
-              style={{
-                background: "linear-gradient(90deg, #9945FF, #14F195)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              {" "}
-              token virale
-            </span>
-          </h1>
-
-          <p
-            style={{
-              color: "rgba(255,255,255,0.4)",
-              fontSize: 16,
-              lineHeight: 1.6,
-            }}
-          >
-            La nostra AI genera per te nome, descrizione e logo perfetti.
-          </p>
-        </div>
-
-        {!loading && !result && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 20,
-            }}
-          >
-            <div style={s.card}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: "rgba(255,255,255,0.35)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  marginBottom: 16,
-                }}
-              >
-                Che nicchia vuoi?
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 8,
-                }}
-              >
-                {NICHES.map((n) => (
-                  <button
-                    key={n}
-                    onClick={() =>
-                      setAnswers((a) => ({
-                        ...a,
-                        niche: n,
-                      }))
-                    }
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: 100,
-                      border:
-                        answers.niche === n
-                          ? "none"
-                          : "1px solid rgba(255,255,255,0.1)",
-                      background:
-                        answers.niche === n
-                          ? "linear-gradient(135deg, #9945FF, #14F195)"
-                          : "rgba(255,255,255,0.04)",
-                      color:
-                        answers.niche === n
-                          ? "white"
-                          : "rgba(255,255,255,0.6)",
-                      fontSize: 13,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div style={s.card}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: "rgba(255,255,255,0.35)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  marginBottom: 16,
-                }}
-              >
-                Che tono?
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 8,
-                }}
-              >
-                {TONES.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() =>
-                      setAnswers((a) => ({
-                        ...a,
-                        tone: t,
-                      }))
-                    }
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: 100,
-                      border:
-                        answers.tone === t
-                          ? "none"
-                          : "1px solid rgba(255,255,255,0.1)",
-                      background:
-                        answers.tone === t
-                          ? "linear-gradient(135deg, #9945FF, #14F195)"
-                          : "rgba(255,255,255,0.04)",
-                      color:
-                        answers.tone === t
-                          ? "white"
-                          : "rgba(255,255,255,0.6)",
-                      fontSize: 13,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div style={s.card}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: "rgba(255,255,255,0.35)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  marginBottom: 16,
-                }}
-              >
-                Mercato target?
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 8,
-                }}
-              >
-                {MARKETS.map((m) => (
-                  <button
-                    key={m}
-                    onClick={() =>
-                      setAnswers((a) => ({
-                        ...a,
-                        market: m,
-                      }))
-                    }
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: 100,
-                      border:
-                        answers.market === m
-                          ? "none"
-                          : "1px solid rgba(255,255,255,0.1)",
-                      background:
-                        answers.market === m
-                          ? "linear-gradient(135deg, #9945FF, #14F195)"
-                          : "rgba(255,255,255,0.04)",
-                      color:
-                        answers.market === m
-                          ? "white"
-                          : "rgba(255,255,255,0.6)",
-                      fontSize: 13,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div style={s.card}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: "rgba(255,255,255,0.35)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  marginBottom: 12,
-                }}
-              >
-                Hai un nome in mente? (opzionale)
-              </div>
-
-              <input
-                placeholder="es. PizzaCoin, DogeMario..."
-                value={answers.name}
-                onChange={(e) =>
-                  setAnswers((a) => ({
-                    ...a,
-                    name: e.target.value,
-                  }))
-                }
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 14,
-                  color: "white",
-                  fontSize: 14,
-                  outline: "none",
-                  fontFamily: "inherit",
-                }}
-              />
-            </div>
-
-            {error && (
-              <div
-                style={{
-                  padding: "14px 18px",
-                  background: "rgba(255,60,60,0.08)",
-                  border: "1px solid rgba(255,60,60,0.2)",
-                  borderRadius: 14,
-                  color: "#ff6b6b",
-                  fontSize: 13,
-                }}
-              >
-                {error}
-              </div>
-            )}
-
-            <button
-              onClick={generate}
-              disabled={isDisabled}
-              style={{
-                width: "100%",
-                padding: "20px",
-                borderRadius: 18,
-                border: "none",
-                background: isDisabled
-                  ? "rgba(255,255,255,0.06)"
-                  : "linear-gradient(135deg, #9945FF, #14F195)",
-                color: "white",
-                fontSize: 16,
-                fontWeight: 900,
-                cursor: isDisabled ? "not-allowed" : "pointer",
-                boxShadow: !isDisabled
-                  ? "0 0 50px rgba(153,69,255,0.3)"
-                  : "none",
-                opacity: isDisabled ? 0.4 : 1,
-              }}
-            >
-              Genera Token con AI
-            </button>
-
-            <p
-              style={{
-                textAlign: "center",
-                fontSize: 12,
-                color: "rgba(255,255,255,0.2)",
-              }}
-            >
-              La generazione può richiedere qualche secondo.
-            </p>
-          </div>
-        )}
-
-        {loading && (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "80px 0",
-            }}
-          >
-            <div
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: "50%",
-                border: "3px solid rgba(153,69,255,0.2)",
-                borderTop: "3px solid #9945FF",
-                margin: "0 auto 32px",
-                animation: "spin 1s linear infinite",
-              }}
-            />
-
-            <p
-              style={{
-                fontSize: 18,
-                fontWeight: 700,
-                color: "white",
-                marginBottom: 8,
-              }}
-            >
-              {loadingMsg}
-            </p>
-
-            <p
-              style={{
-                fontSize: 13,
-                color: "rgba(255,255,255,0.3)",
-              }}
-            >
-              L'AI sta lavorando per te...
-            </p>
-
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          </div>
-        )}
-
-        {result && !loading && (
-          <div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 24,
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: 22,
-                  fontWeight: 900,
-                }}
-              >
-                Il tuo token AI
-              </h2>
-
-              <button
-                onClick={() => {
-                  setResult(null);
-                  setError("");
-                }}
-                style={{
-                  padding: "8px 16px",
-                  borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.04)",
-                  color: "rgba(255,255,255,0.6)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                Rigenera
-              </button>
-            </div>
-
-            <ResultCard result={result} onUse={useToken} />
-          </div>
-        )}
+        />
       </div>
+
+      <section className="relative z-10 px-4 sm:px-6 pt-36 pb-14">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 text-center">
+            <div
+              className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest"
+              style={{
+                background: "rgba(153,69,255,0.1)",
+                border: "1px solid rgba(153,69,255,0.22)",
+                color: "#9945FF",
+              }}
+            >
+              🤖 AI Meme Generator
+            </div>
+
+            <h1
+              className="mx-auto mb-5 max-w-4xl font-black leading-[0.95]"
+              style={{
+                fontSize: "clamp(44px, 8vw, 86px)",
+                letterSpacing: "-0.055em",
+              }}
+            >
+              Crea una meme coin
+              <br />
+              <span
+                style={{
+                  background: "linear-gradient(90deg, #9945FF, #14F195)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                partendo dai trend.
+              </span>
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-base sm:text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.43)" }}>
+              L’AI analizza i token Solana più caldi e genera nome, ticker, descrizione, logo e strategia di lancio.
+            </p>
+          </div>
+
+          {!loading && !result && (
+            <div className="grid gap-6 lg:grid-cols-[1fr_0.72fr]">
+              <div
+                className="rounded-[34px] p-5 sm:p-7"
+                style={{
+                  background: "rgba(255,255,255,0.035)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  boxShadow: "0 24px 80px rgba(0,0,0,0.24)",
+                }}
+              >
+                <div className="mb-6">
+                  <p className="mb-2 text-xs font-black uppercase tracking-widest" style={{ color: "#14F195" }}>
+                    Configura idea
+                  </p>
+                  <h2 className="text-2xl font-black text-white">Scegli il DNA del token</h2>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <p className="mb-3 text-xs font-black uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.34)" }}>
+                      Che nicchia vuoi?
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {NICHES.map(n => (
+                        <PillButton
+                          key={n}
+                          active={answers.niche === n}
+                          onClick={() => setAnswers(a => ({ ...a, niche: n }))}
+                        >
+                          {n}
+                        </PillButton>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="mb-3 text-xs font-black uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.34)" }}>
+                      Che tono?
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {TONES.map(t => (
+                        <PillButton
+                          key={t}
+                          active={answers.tone === t}
+                          onClick={() => setAnswers(a => ({ ...a, tone: t }))}
+                        >
+                          {t}
+                        </PillButton>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="mb-3 text-xs font-black uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.34)" }}>
+                      Mercato target?
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {MARKETS.map(m => (
+                        <PillButton
+                          key={m}
+                          active={answers.market === m}
+                          onClick={() => setAnswers(a => ({ ...a, market: m }))}
+                        >
+                          {m}
+                        </PillButton>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="mb-3 text-xs font-black uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.34)" }}>
+                      Hai un nome in mente? opzionale
+                    </p>
+                    <input
+                      placeholder="es. PizzaCoin, DogeMario..."
+                      value={answers.name}
+                      onChange={e => setAnswers(a => ({ ...a, name: e.target.value }))}
+                      className="w-full rounded-2xl px-4 py-4 text-sm outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.055)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        color: "white",
+                        fontFamily: "inherit",
+                      }}
+                    />
+                  </div>
+
+                  {error && (
+                    <div
+                      className="rounded-2xl p-4 text-sm"
+                      style={{
+                        background: "rgba(255,60,60,0.08)",
+                        border: "1px solid rgba(255,60,60,0.2)",
+                        color: "#ff6b6b",
+                      }}
+                    >
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={generate}
+                    disabled={isDisabled}
+                    className="w-full rounded-2xl border-0 p-5 text-base font-black text-white transition-all hover:scale-[1.01]"
+                    style={{
+                      background: isDisabled
+                        ? "rgba(255,255,255,0.06)"
+                        : "linear-gradient(135deg, #9945FF, #14F195)",
+                      cursor: isDisabled ? "not-allowed" : "pointer",
+                      boxShadow: !isDisabled ? "0 0 55px rgba(153,69,255,0.28)" : "none",
+                      opacity: isDisabled ? 0.45 : 1,
+                    }}
+                  >
+                    Genera token con AI
+                  </button>
+                </div>
+              </div>
+
+              <aside
+                className="rounded-[34px] p-6"
+                style={{
+                  background: "linear-gradient(135deg, rgba(153,69,255,0.10), rgba(20,241,149,0.045))",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
+                <p className="mb-3 text-xs font-black uppercase tracking-widest" style={{ color: "#9945FF" }}>
+                  Come funziona
+                </p>
+
+                <div className="space-y-4">
+                  {[
+                    ["01", "Legge i trend Solana live"],
+                    ["02", "Trova una narrativa non satura"],
+                    ["03", "Crea nome, ticker e lore"],
+                    ["04", "Genera logo e strategia"],
+                  ].map(([n, text]) => (
+                    <div key={n} className="flex items-center gap-4 rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.04)" }}>
+                      <span
+                        className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black"
+                        style={{ background: "linear-gradient(135deg, #9945FF, #14F195)" }}
+                      >
+                        {n}
+                      </span>
+                      <span className="text-sm font-bold" style={{ color: "rgba(255,255,255,0.72)" }}>
+                        {text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="mt-6 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>
+                  Dopo la generazione puoi mandare il concept direttamente al launcher e creare il token.
+                </p>
+              </aside>
+            </div>
+          )}
+
+          {loading && (
+            <div className="mx-auto max-w-xl py-20 text-center">
+              <div
+                className="mx-auto mb-8 h-24 w-24 rounded-full"
+                style={{
+                  border: "3px solid rgba(153,69,255,0.2)",
+                  borderTop: "3px solid #9945FF",
+                  animation: "spin 1s linear infinite",
+                }}
+              />
+
+              <p className="mb-2 text-xl font-black text-white">{loadingMsg}</p>
+              <p className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
+                L’AI sta creando un concept pronto per il lancio.
+              </p>
+
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          )}
+
+          {result && !loading && (
+            <div className="mx-auto max-w-4xl">
+              <div className="mb-6 flex items-center justify-between gap-4">
+                <h2 className="text-2xl font-black text-white">Il tuo token AI</h2>
+
+                <button
+                  onClick={() => {
+                    setResult(null);
+                    setError("");
+                  }}
+                  className="rounded-2xl px-4 py-2 text-sm font-black transition-all hover:scale-105"
+                  style={{
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.055)",
+                    color: "rgba(255,255,255,0.7)",
+                  }}
+                >
+                  Rigenera
+                </button>
+              </div>
+
+              <ResultCard result={result} onUse={useToken} />
+            </div>
+          )}
+        </div>
+      </section>
+
+      <SiteFooter />
     </main>
   );
 }
