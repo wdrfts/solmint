@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-type Vibe = "auto" | "meme" | "degen" | "premium" | "cute" | "cyber" | "retro" | "cosmic";
+type Vibe =
+  | "auto"
+  | "meme"
+  | "degen"
+  | "premium"
+  | "cute"
+  | "cyber"
+  | "retro"
+  | "cosmic";
 
 type Theme = {
   label: string;
@@ -86,6 +94,17 @@ function detectTheme(name: string, desc: string): Exclude<Vibe, "auto"> {
   return "meme";
 }
 
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = reject;
+
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AIWebsitePage() {
   const [tokenName, setTokenName] = useState("MoonPup");
   const [symbol, setSymbol] = useState("PUP");
@@ -95,6 +114,9 @@ export default function AIWebsitePage() {
   );
   const [vibe, setVibe] = useState<Vibe>("auto");
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const detected = detectTheme(tokenName, description);
   const finalVibe = vibe === "auto" ? detected : vibe;
@@ -123,16 +145,75 @@ export default function AIWebsitePage() {
     };
   }, [tokenName, symbol, description, theme]);
 
-  const handleLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (!file) return;
-    setLogoPreview(URL.createObjectURL(file));
+
+    const preview = URL.createObjectURL(file);
+    const dataUrl = await fileToDataUrl(file);
+
+    setLogoPreview(preview);
+    setLogoDataUrl(dataUrl);
   };
+
+  async function handleGenerate() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await fetch("/api/ai-website/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tokenName,
+          symbol,
+          mint,
+          description,
+          vibe: finalVibe,
+          logoUrl: logoDataUrl,
+          theme: {
+            label: theme.label,
+            accent: theme.accent,
+            second: theme.second,
+            bg: theme.bg,
+            emoji: theme.emoji,
+            headline: theme.headline,
+          },
+          brief: siteBrief,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data?.error || "Errore durante la generazione.");
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      if (data?.slug) {
+        window.location.href = `/site/${data.slug}`;
+      }
+    } catch (err) {
+      console.log(err);
+      setError("Errore durante la generazione.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <main className="min-h-screen overflow-x-hidden" style={{ background: "#050509", color: "white" }}>
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
         <div className="absolute inset-0" style={{ background: theme.bg }} />
+
         <div
           className="absolute inset-0"
           style={{
@@ -140,6 +221,7 @@ export default function AIWebsitePage() {
               "linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px)",
             backgroundSize: "72px 72px",
             maskImage: "radial-gradient(circle at center, black 0%, transparent 76%)",
+            WebkitMaskImage: "radial-gradient(circle at center, black 0%, transparent 76%)",
           }}
         />
       </div>
@@ -161,6 +243,7 @@ export default function AIWebsitePage() {
             <Link href="/?app=true" style={{ color: "#14F195", textDecoration: "none", fontWeight: 900 }}>
               Crea token
             </Link>
+
             <Link href="/" style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontWeight: 800 }}>
               ← Home
             </Link>
@@ -255,7 +338,10 @@ export default function AIWebsitePage() {
                 <label className="text-xs text-gray-400 mb-1 block">Logo token</label>
                 <label
                   className="cursor-pointer rounded-2xl p-4 flex items-center gap-4"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px dashed rgba(255,255,255,0.18)" }}
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px dashed rgba(255,255,255,0.18)",
+                  }}
                 >
                   <div
                     style={{
@@ -268,12 +354,18 @@ export default function AIWebsitePage() {
                       background: `linear-gradient(135deg, ${theme.accent}, ${theme.second})`,
                     }}
                   >
-                    {logoPreview ? <img src={logoPreview} alt="Logo preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : "🖼️"}
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Logo preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      "🖼️"
+                    )}
                   </div>
+
                   <div>
                     <div style={{ fontWeight: 900 }}>Carica logo / mascot</div>
                     <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>L’AI userà questo come base visuale.</div>
                   </div>
+
                   <input type="file" accept="image/*" className="hidden" onChange={handleLogo} />
                 </label>
               </div>
@@ -290,6 +382,7 @@ export default function AIWebsitePage() {
 
               <div>
                 <label className="text-xs text-gray-400 mb-2 block">Stile sito</label>
+
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {(["auto", "meme", "degen", "premium", "cute", "cyber", "retro", "cosmic"] as Vibe[]).map((key) => {
                     const active = vibe === key;
@@ -299,6 +392,7 @@ export default function AIWebsitePage() {
                       <button
                         key={key}
                         onClick={() => setVibe(key)}
+                        type="button"
                         style={{
                           padding: "11px 12px",
                           borderRadius: 14,
@@ -316,19 +410,40 @@ export default function AIWebsitePage() {
                 </div>
               </div>
 
+              {error && (
+                <div
+                  style={{
+                    padding: 14,
+                    borderRadius: 16,
+                    background: "rgba(255,80,80,0.12)",
+                    border: "1px solid rgba(255,80,80,0.28)",
+                    color: "#ff8b8b",
+                    fontSize: 13,
+                    fontWeight: 800,
+                  }}
+                >
+                  {error}
+                </div>
+              )}
+
               <button
+                onClick={handleGenerate}
+                disabled={loading}
+                type="button"
                 style={{
                   width: "100%",
                   padding: "16px 24px",
                   borderRadius: 18,
-                  background: `linear-gradient(135deg, ${theme.second}, ${theme.accent})`,
+                  background: loading ? "rgba(255,255,255,0.12)" : `linear-gradient(135deg, ${theme.second}, ${theme.accent})`,
                   color: "white",
                   fontWeight: 950,
                   border: "none",
                   boxShadow: "0 18px 60px rgba(153,69,255,0.32)",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  opacity: loading ? 0.7 : 1,
                 }}
               >
-                Genera sito AI completo — 0.2 SOL
+                {loading ? "Generazione sito AI..." : "Genera sito AI completo — FREE"}
               </button>
             </div>
           </div>
@@ -345,6 +460,7 @@ export default function AIWebsitePage() {
               <div style={{ color: theme.accent, fontSize: 12, fontWeight: 950, marginBottom: 8 }}>
                 GENERATED AI BRIEF
               </div>
+
               <h2 style={{ fontSize: 34, fontWeight: 950, letterSpacing: "-0.04em", margin: 0 }}>
                 {tokenName || "Your Coin"} website direction
               </h2>
@@ -373,8 +489,13 @@ export default function AIWebsitePage() {
                       fontSize: 34,
                     }}
                   >
-                    {logoPreview ? <img src={logoPreview} alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : theme.emoji}
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      theme.emoji
+                    )}
                   </div>
+
                   <div>
                     <div style={{ fontSize: 24, fontWeight: 950 }}>{tokenName}</div>
                     <div style={{ color: "rgba(255,255,255,0.55)" }}>${symbol}</div>
@@ -415,7 +536,10 @@ export default function AIWebsitePage() {
                     border: "1px solid rgba(255,255,255,0.08)",
                   }}
                 >
-                  <div style={{ color: theme.accent, fontSize: 12, fontWeight: 950, marginBottom: 8 }}>ART DIRECTION</div>
+                  <div style={{ color: theme.accent, fontSize: 12, fontWeight: 950, marginBottom: 8 }}>
+                    ART DIRECTION
+                  </div>
+
                   <p style={{ color: "rgba(255,255,255,0.62)", lineHeight: 1.7 }}>{siteBrief.artDirection}</p>
                 </div>
 
@@ -433,6 +557,7 @@ export default function AIWebsitePage() {
                       <div style={{ color: theme.accent, fontSize: 12, fontWeight: 950, marginBottom: 7 }}>
                         SECTION {i + 1}
                       </div>
+
                       <p style={{ color: "rgba(255,255,255,0.58)", fontSize: 13, lineHeight: 1.65 }}>{s}</p>
                     </div>
                   ))}
@@ -449,6 +574,7 @@ export default function AIWebsitePage() {
                   <div style={{ color: theme.accent, fontSize: 12, fontWeight: 950, marginBottom: 10 }}>
                     AI IMAGE PROMPTS
                   </div>
+
                   <div className="grid gap-2">
                     {siteBrief.imagePrompts.map((p) => (
                       <p key={p} style={{ color: "rgba(255,255,255,0.56)", fontSize: 13, lineHeight: 1.6, margin: 0 }}>
