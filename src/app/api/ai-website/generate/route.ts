@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { generateSiteAI } from "@/lib/aiText";
+import { generateSiteImages } from "@/lib/aiImages";
 
 function slugify(text: string) {
   return text
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
     const mint = body.mint || "";
     const description = body.description || "A Solana memecoin.";
     const logoUrl = body.logoUrl || "";
-    const inputTheme = body.theme;
+    const inputTheme = body.theme || {};
 
     const slug = slugify(tokenName);
 
@@ -29,14 +30,38 @@ export async function POST(req: Request) {
       description,
     });
 
+    const images = await generateSiteImages({
+      tokenName,
+      symbol,
+      description,
+      vibe: aiContent?.vibe,
+      heroPrompt: aiContent?.imagePrompts?.hero,
+      communityPrompt: aiContent?.imagePrompts?.community,
+    });
+
     const theme = {
       background:
+        aiContent?.palette?.background ||
         inputTheme?.bg ||
-        "linear-gradient(135deg, #07070f, #130b2a)",
-      primary: inputTheme?.accent || "#14F195",
-      secondary: inputTheme?.second || "#9945FF",
-      emoji: inputTheme?.emoji || "🚀",
-      label: inputTheme?.label || "AI Meme",
+        "radial-gradient(circle at 25% -10%, rgba(153,69,255,.42), transparent 35%), radial-gradient(circle at 82% 12%, rgba(20,241,149,.22), transparent 34%), linear-gradient(135deg, #060611, #12051f)",
+      primary:
+        aiContent?.palette?.primary ||
+        inputTheme?.accent ||
+        "#14F195",
+      secondary:
+        aiContent?.palette?.secondary ||
+        inputTheme?.second ||
+        "#9945FF",
+      accent:
+        aiContent?.palette?.accent ||
+        "#FF4ECD",
+      emoji:
+        inputTheme?.emoji ||
+        "🚀",
+      label:
+        inputTheme?.label ||
+        aiContent?.vibe ||
+        "AI Meme",
     };
 
     const { error } = await supabase.from("generated_sites").upsert(
@@ -49,6 +74,7 @@ export async function POST(req: Request) {
         logo_url: logoUrl,
         theme,
         content: aiContent,
+        images,
       },
       { onConflict: "slug" }
     );
@@ -67,6 +93,7 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error(err);
+
     return NextResponse.json(
       { error: "Errore durante la generazione." },
       { status: 500 }
